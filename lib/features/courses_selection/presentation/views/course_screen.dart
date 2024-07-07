@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:face_attendance_app/features/courses_selection/presentation/riverpod/course_selection_riverpod.dart';
+import 'package:face_attendance_app/features/courses_selection/presentation/views/course_day.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,14 +18,17 @@ class CourseScreen extends ConsumerStatefulWidget {
 // 2. extend [ConsumerState]
 class _CourseScreenState extends ConsumerState<CourseScreen> {
   late Future<Map<String, List<dynamic>>> listOfStudents;
-  late Future<Map<String, List<dynamic>>> attendanceSheet;
+  // late Future<Map<String, List<dynamic>>> attendanceSheet;
+  late Map<String, List<dynamic>> attendanceSheet;
   late String day;
 
   @override
   void initState() {
     super.initState();
     listOfStudents = getAllStudents('Total_Students');
-    attendanceSheet = getAttendanceSheet(widget.courseName);
+
+    // attendanceSheet = getAttendanceSheet(widget.courseName);
+    getAttendanceSheet(widget.courseName);
   }
 
   @override
@@ -41,17 +45,24 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
         // crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(widget.courseName),
-          Container(
-            color: Colors.red,
-            height: 100,
-            width: 100,
-            child: const Text('Day 1'),
+          GestureDetector(
+            onTap: () {
+              navigateToDay(context, 'day1', attendanceSheet);
+            },
+            child: Container(
+              color: Colors.red,
+              height: 100,
+              width: 100,
+              child: const Text('Day 1'),
+            ),
           ),
-          Container(
-            color: Colors.red,
-            height: 100,
-            width: 100,
-            child: const Text('Day 2'),
+          GestureDetector(
+            child: Container(
+              color: Colors.red,
+              height: 100,
+              width: 100,
+              child: const Text('Day 2'),
+            ),
           ),
           Container(
             color: Colors.red,
@@ -59,18 +70,31 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
             width: 100,
             child: const Text('Day 3'),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.blue,
-              height: 50,
-              width: 50,
-              child: const Center(
-                child: Text('Attend'),
-              ),
-            ),
-          ),
+          // Align(
+          //   alignment: Alignment.bottomCenter,
+          //   child: Container(
+          //     color: Colors.blue,
+          //     height: 50,
+          //     width: 50,
+          //     child: const Center(
+          //       child: ElevatedButton(onPressed: onPressed, child: Text('Attend')),
+          //     ),
+          //   ),
+          // ),
         ],
+      ),
+    );
+  }
+
+  void navigateToDay(context, String day, dynamic attendanceSheet) {
+    Navigator.push(
+      context,
+      // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+      MaterialPageRoute(
+        builder: (context) => CourseDayScreen(
+          day: day,
+          attendedStudentsMap: attendanceSheet,
+        ),
       ),
     );
   }
@@ -87,15 +111,33 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     }
   }
 
-  Future<Map<String, List<dynamic>>> getAttendanceSheet(
-      String nameOfJsonFile) async {
+  Future<void> getAttendanceSheet(
+    String nameOfJsonFile,
+  ) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonMap = prefs.getString(nameOfJsonFile);
     if (jsonMap != null) {
       final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
-      return decodedMap;
+      attendanceSheet = decodedMap;
+      // return decodedMap;
     } else {
-      return {};
+      attendanceSheet = {};
+      // return {};
     }
   }
+
+  // Future<Map<String, List<dynamic>>> getAttendanceSheet(
+  //   String nameOfJsonFile,
+  // ) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final jsonMap = prefs.getString(nameOfJsonFile);
+  //   if (jsonMap != null) {
+  //     final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
+  //     attendanceSheet = decodedMap;
+  //     return decodedMap;
+  //   } else {
+  //     return {};
+  //   }
+  // }
+  // Future<void>
 }

@@ -38,7 +38,7 @@ class LiveFeedScreen extends ConsumerStatefulWidget {
   // final tf_lite.Interpreter livenessInterpreter;
   late String nameOfJsonFile;
   final String? day;
-  late List<String>? attended;
+  late List<dynamic>? attended;
 
   @override
   ConsumerState<LiveFeedScreen> createState() => _LiveFeedScreenState();
