@@ -144,15 +144,6 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     );
   }
 
-  // void navigateToLiveFeed(context, widget.attended, widget.attendedStudentsMap, String day ) {
-  //   Navigator.push(
-  //     context,
-  //     // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-  //     MaterialPageRoute(
-  //       builder: (context) => LiveFeedScreen(),
-  //     ),
-  //   );
-  // }
   Future<void> goToLiveFeedScreen(context, detectController, fileName,
       List<dynamic>? attended, String day) async {
     List<CameraDescription> cameras = await availableCameras();

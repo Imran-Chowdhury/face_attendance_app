@@ -86,6 +86,11 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
   Widget build(BuildContext context) {
     // 4. use ref.watch() to get the value of the provider
     // final helloWorld = ref.watch(helloWorldProvider);
+
+    Map<String, List<dynamic>> jsonData = {
+      'Day 1': ['Imran', 'Aonmoy', 'Akas', 'Anan'],
+    };
+
     return Scaffold(
       backgroundColor: const Color(0xFF3a3b45),
       body: Column(
@@ -125,9 +130,78 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
               },
             ),
           ),
+          // ElevatedButton(
+          //     onPressed: initializeJsonFiles,
+          //     child: const Text('Create files')),
+          // const SizedBox(
+          //   height: 10.0,
+          // ),
+          // ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
+          // const SizedBox(
+          //   height: 10.0,
+          // ),
+          // ElevatedButton(
+          //     onPressed: clearAllPrefs, child: const Text('Delete files')),
         ],
       ),
     );
+  }
+
+  Future<void> initializeJsonFiles() async {
+    List<String> courses = ['Course 1', 'Course 2', 'Course 3', 'Course 4'];
+    final prefs = await SharedPreferences.getInstance();
+
+    for (String course in courses) {
+      if (prefs.getString(course) == null) {
+        prefs.setString(course, json.encode({}));
+      }
+    }
+    for (int i = 0; i < courses.length; i++) {
+      getJsonFromPrefs(courses[i]);
+    }
+  }
+
+  Future<Map<String, dynamic>?> getJsonFromPrefs(String course) async {
+    final prefs = await SharedPreferences.getInstance();
+    String? jsonString = prefs.getString(course);
+    if (jsonString != null) {
+      Map<String, dynamic> jsonData = json.decode(jsonString);
+      print('the map is $jsonData');
+      return jsonData;
+    }
+    return {
+      'map': 'working',
+    };
+  }
+
+  Future<void> saveJsonToPrefs(
+      String key, Map<String, dynamic> jsonData) async {
+    final prefs = await SharedPreferences.getInstance();
+    String jsonString = json.encode(jsonData);
+    prefs.setString(key, jsonString);
+  }
+
+  Future<void> deleteAllJsonFiles() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> courses = ['Course 1', 'Course 2', 'Course 3', 'Course 4'];
+
+    for (String course in courses) {
+      await prefs.remove(course);
+    }
+  }
+
+  Future<void> loadKeys() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    print(prefs.getKeys().toList());
+  }
+
+  Future<void> clearAllPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    print('All prefs deleted');
+    // Refresh the keys list after clearing
+    // _loadKeys();
   }
 
   void navigateToCourses(context, String courseName) {

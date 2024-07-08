@@ -19,7 +19,9 @@ class CourseScreen extends ConsumerStatefulWidget {
 class _CourseScreenState extends ConsumerState<CourseScreen> {
   late Future<Map<String, List<dynamic>>> listOfStudents;
   // late Future<Map<String, List<dynamic>>> attendanceSheet;
-  late Map<String, List<dynamic>> attendanceSheet;
+  Map<String, List<dynamic>> attendanceSheet = {
+    'lalala': ['bobbobob'],
+  };
   late String day;
 
   @override
@@ -27,8 +29,14 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     super.initState();
     listOfStudents = getAllStudents('Total_Students');
 
+    getAttendanceSheet();
+
     // attendanceSheet = getAttendanceSheet(widget.courseName);
-    getAttendanceSheet(widget.courseName);
+    // getAttendanceSheet(widget.courseName);
+  }
+
+  Future getAttendanceSheet() async {
+    attendanceSheet = await getMap(widget.courseName);
   }
 
   @override
@@ -37,6 +45,8 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     // final helloWorld = ref.watch(helloWorldProvider);
     // var dayState = ref.watch(CourseProvider(day));
     // CourseNotifier dayController = ref.watch(CourseProvider(day).notifier);
+
+    print(attendanceSheet);
 
     return Scaffold(
       backgroundColor: const Color(0xFF3a3b45),
@@ -111,33 +121,44 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     }
   }
 
-  Future<void> getAttendanceSheet(
+  // Future<> getAttendanceSheet(String nameOfJsonFile) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final jsonMap = prefs.getString(nameOfJsonFile);
+  //   if (jsonMap != null) {
+  //     final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
+  //     // attendanceSheet = decodedMap;
+  //     return decodedMap;
+  //   } else {
+  //     // attendanceSheet = {};
+  //     return {};
+  //   }
+  // }
+
+  // Future<Map<String, dynamic>?> getJsonFromPrefs(String course) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   String? jsonString = prefs.getString(course);
+  //   if (jsonString != null) {
+  //     Map<String, dynamic> jsonData = json.decode(jsonString);
+  //     print('the map is $jsonData');
+  //     return jsonData;
+  //   }
+  //   return {
+  //     'map': 'working',
+  //   };
+  // }
+
+  Future<Map<String, List<dynamic>>> getMap(
     String nameOfJsonFile,
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonMap = prefs.getString(nameOfJsonFile);
     if (jsonMap != null) {
       final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
-      attendanceSheet = decodedMap;
-      // return decodedMap;
+      // attendanceSheet = decodedMap;
+      return decodedMap;
     } else {
-      attendanceSheet = {};
-      // return {};
+      return {};
     }
   }
-
-  // Future<Map<String, List<dynamic>>> getAttendanceSheet(
-  //   String nameOfJsonFile,
-  // ) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final jsonMap = prefs.getString(nameOfJsonFile);
-  //   if (jsonMap != null) {
-  //     final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
-  //     attendanceSheet = decodedMap;
-  //     return decodedMap;
-  //   } else {
-  //     return {};
-  //   }
-  // }
   // Future<void>
 }
