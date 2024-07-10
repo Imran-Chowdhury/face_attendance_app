@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:face_attendance_app/core/constants/constants.dart';
 import 'package:face_attendance_app/features/face_detection/presentation/riverpod/face_detection_provider.dart';
 import 'package:face_attendance_app/features/recognize_face/presentation/riverpod/recognize_face_provider.dart';
 import 'package:face_attendance_app/features/train_face/presentation/riverpod/train_face_provider.dart';
@@ -148,7 +149,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // String fileName = 'testMap';
     // String fileName = 'liveGallery-live';
     // String fileName = 'liveTraining(with tflite helper)'; //for now livefeeds datas are in this file
-    String fileName = 'Training(input[1,160,160,3], output[1,512])';
+    // String fileName = 'Training(input[1,160,160,3], output[1,512])';
+    // String fileName = 'Total Students';
+    Constants constant = Constants();
+
+    String fileName = constant.allStudent;
 
     Uint8List convertImageToUint8List(img.Image image) {
       // Encode the image to PNG format

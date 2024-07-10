@@ -10,6 +10,7 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
+import '../../../../core/constants/constants.dart';
 import '../../../../core/utils/courseButton.dart';
 
 class CourseSelectionScreen extends ConsumerStatefulWidget {
@@ -86,6 +87,7 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
   Widget build(BuildContext context) {
     // 4. use ref.watch() to get the value of the provider
     // final helloWorld = ref.watch(helloWorldProvider);
+    Constants constant = Constants();
 
     Map<String, List<dynamic>> jsonData = {
       'Day 1': ['Imran', 'Aonmoy', 'Akas', 'Anan'],
@@ -98,35 +100,35 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
         children: [
           Center(
             child: CourseButton(
-              courseName: 'Course 1',
-              // listOfStudents: listOfStudents,
+              // courseName: 'Course 1',
+              courseName: constant.course_1,
               goToCourse: () {
-                navigateToCourses(context, 'Course 1');
+                navigateToCourses(context, constant.course_1);
               },
             ),
           ),
           Center(
             child: CourseButton(
-                courseName: 'Course 2',
-                // listOfStudents: listOfStudents,
+                // courseName: 'Course 2',
+                courseName: constant.course_2,
                 goToCourse: () {
-                  navigateToCourses(context, 'Course 2');
+                  navigateToCourses(context, constant.course_2);
                 }),
           ),
           Center(
             child: CourseButton(
-                courseName: 'Course 3',
-                // listOfStudents: listOfStudents,
+                // courseName: 'Course 3',
+                courseName: constant.course_3,
                 goToCourse: () {
-                  navigateToCourses(context, 'Course 3');
+                  navigateToCourses(context, constant.course_3);
                 }),
           ),
           Center(
             child: CourseButton(
-              courseName: 'Course 4',
-              // listOfStudents: listOfStudents,
+              // courseName: 'Course 4',
+              courseName: constant.course_4,
               goToCourse: () {
-                navigateToCourses(context, 'Course 4');
+                navigateToCourses(context, constant.course_4);
               },
             ),
           ),

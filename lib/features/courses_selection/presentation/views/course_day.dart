@@ -9,6 +9,7 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import 'package:tflite_flutter/tflite_flutter.dart';
 import '../../../../core/base_state/course_state.dart';
+import '../../../../core/constants/constants.dart';
 import '../../../face_detection/presentation/riverpod/face_detection_provider.dart';
 import '../riverpod/course_selection_riverpod.dart';
 
@@ -91,6 +92,7 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
   Widget build(BuildContext context) {
     // 4. use ref.watch() to get the value of the provider
     // final helloWorld = ref.watch(helloWorldProvider);
+    Constants constant = Constants();
     final detectController = ref.watch(faceDetectionProvider.notifier);
     var dayState = ref.watch(courseProvider(widget.day));
     CourseNotifier dayController =
@@ -111,11 +113,11 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
           const SizedBox(
             height: 10,
           ),
-          const Text('Imran'),
+          const Text('Akhi'),
           const SizedBox(
             height: 10,
           ),
-          const Text('Imran'),
+          const Text('Ameena'),
           const SizedBox(
             height: 10,
           ),
@@ -129,7 +131,7 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
 
           GestureDetector(
             onTap: () {
-              goToLiveFeedScreen(context, detectController, 'All_Students',
+              goToLiveFeedScreen(context, detectController, constant.allStudent,
                   attended, widget.day);
             },
             child: Container(

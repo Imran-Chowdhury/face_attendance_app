@@ -1,11 +1,16 @@
 import 'dart:convert';
 
-import 'package:face_attendance_app/features/courses_selection/presentation/riverpod/course_selection_riverpod.dart';
+import 'package:face_attendance_app/core/base_state/course_screen_state.dart';
+import 'package:face_attendance_app/features/courses_selection/presentation/riverpod/course_screen_riverpod.dart';
+
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_day.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../../../core/constants/constants.dart';
 
 class CourseScreen extends ConsumerStatefulWidget {
   const CourseScreen({super.key, required this.courseName});
@@ -17,83 +22,113 @@ class CourseScreen extends ConsumerStatefulWidget {
 
 // 2. extend [ConsumerState]
 class _CourseScreenState extends ConsumerState<CourseScreen> {
-  late Future<Map<String, List<dynamic>>> listOfStudents;
-  // late Future<Map<String, List<dynamic>>> attendanceSheet;
-  Map<String, List<dynamic>> attendanceSheet = {
-    'lalala': ['bobbobob'],
-  };
+  Constants constant = Constants();
+  Map<String, List<dynamic>> mapOfStudents = {};
+
+  Map<String, List<dynamic>>? attendanceSheetMap = {};
   late String day;
+  // List<dynamic>? daysFromMap;
+  List<dynamic>? listOfDays;
 
   @override
   void initState() {
     super.initState();
-    listOfStudents = getAllStudents('Total_Students');
 
-    getAttendanceSheet();
+    fetchInitialData();
 
-    // attendanceSheet = getAttendanceSheet(widget.courseName);
-    // getAttendanceSheet(widget.courseName);
+    print('The attendance map is $attendanceSheetMap');
   }
 
-  Future getAttendanceSheet() async {
-    attendanceSheet = await getMap(widget.courseName);
+  Future<void> fetchInitialData() async {
+    final attendance = await getAttendanceMap(widget.courseName);
+    final students = await getAllStudentsMap(constant.allStudent);
+
+    setState(() {
+      attendanceSheetMap = attendance;
+      mapOfStudents = students;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    // 4. use ref.watch() to get the value of the provider
-    // final helloWorld = ref.watch(helloWorldProvider);
-    // var dayState = ref.watch(CourseProvider(day));
-    // CourseNotifier dayController = ref.watch(CourseProvider(day).notifier);
+    var courseScreenState = ref.watch(courseScreenProvider(widget.courseName));
+    var courseScreenNotifier =
+        ref.watch(courseScreenProvider(widget.courseName).notifier);
 
-    print(attendanceSheet);
+    List<dynamic>? listOfDays = mapToList(attendanceSheetMap);
+    if (courseScreenState is CourseScreeenSuccessState) {
+      listOfDays = courseScreenState.data;
+    }
 
     return Scaffold(
       backgroundColor: const Color(0xFF3a3b45),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        // crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(widget.courseName),
-          GestureDetector(
-            onTap: () {
-              navigateToDay(context, 'day1', attendanceSheet);
-            },
-            child: Container(
-              color: Colors.red,
-              height: 100,
-              width: 100,
-              child: const Text('Day 1'),
-            ),
-          ),
-          GestureDetector(
-            child: Container(
-              color: Colors.red,
-              height: 100,
-              width: 100,
-              child: const Text('Day 2'),
-            ),
-          ),
-          Container(
-            color: Colors.red,
-            height: 100,
-            width: 100,
-            child: const Text('Day 3'),
-          ),
-          // Align(
-          //   alignment: Alignment.bottomCenter,
-          //   child: Container(
-          //     color: Colors.blue,
-          //     height: 50,
-          //     width: 50,
-          //     child: const Center(
-          //       child: ElevatedButton(onPressed: onPressed, child: Text('Attend')),
-          //     ),
-          //   ),
-          // ),
-        ],
-      ),
+      body: listOfDays!.isEmpty
+          ? const Center(
+              child: Text('Start Class'),
+            )
+          : (courseScreenState is CourseScreeenSuccessState)
+              ? ListofDates(courseScreenState.data)
+              : ListofDates(listOfDays),
+
+      // ListView.builder(
+      //     itemCount: listOfDays.length,
+      //     itemBuilder: (context, index) {
+      //       print('The list of days is $listOfDays');
+      //       return ListTile(
+      //         title: Text(listOfDays![index]),
+      //       );
+      //     },
+      //   ),
+      floatingActionButton:
+          add(context, courseScreenNotifier, listOfDays, attendanceSheetMap),
     );
+  }
+
+  Widget ListofDates(List<dynamic>? listOfDays) {
+    return ListView.builder(
+      itemCount: listOfDays?.length,
+      itemBuilder: (context, index) {
+        print('The list of days is $listOfDays');
+        return ListTile(
+          title: Text(listOfDays![index]),
+        );
+      },
+    );
+  }
+
+  Widget add(BuildContext context, CourseScreenNotifier courseScreenNotifier,
+      List<dynamic>? listOfDays, Map<String, List<dynamic>>? attendanceMap) {
+    return FloatingActionButton(onPressed: () async {
+      DateTime? pickedDate = await showDatePicker(
+        context: context,
+        initialDate: DateTime.now(),
+        firstDate: DateTime(2000),
+        lastDate: DateTime(2100),
+      );
+
+      if (pickedDate != null) {
+        courseScreenNotifier.dayList(widget.courseName, pickedDate.toString(),
+            listOfDays, attendanceMap);
+      }
+    });
+  }
+
+  List<dynamic>? mapToList(Map<String, List<dynamic>>? attendanceSheetMap) {
+    print('Lalalaa');
+    List? daysList = [];
+    try {
+      if (attendanceSheetMap!.isNotEmpty) {
+        for (String key in attendanceSheetMap.keys) {
+          daysList!.add(key);
+        }
+        print(daysList);
+      } else {
+        daysList = [];
+      }
+    } catch (e) {
+      rethrow;
+    }
+    return daysList;
   }
 
   void navigateToDay(context, String day, dynamic attendanceSheet) {
@@ -109,7 +144,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     );
   }
 
-  Future<Map<String, List<dynamic>>> getAllStudents(
+  Future<Map<String, List<dynamic>>> getAllStudentsMap(
       String nameOfJsonFile) async {
     final prefs = await SharedPreferences.getInstance();
     final jsonMap = prefs.getString(nameOfJsonFile);
@@ -121,33 +156,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     }
   }
 
-  // Future<> getAttendanceSheet(String nameOfJsonFile) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   final jsonMap = prefs.getString(nameOfJsonFile);
-  //   if (jsonMap != null) {
-  //     final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
-  //     // attendanceSheet = decodedMap;
-  //     return decodedMap;
-  //   } else {
-  //     // attendanceSheet = {};
-  //     return {};
-  //   }
-  // }
-
-  // Future<Map<String, dynamic>?> getJsonFromPrefs(String course) async {
-  //   final prefs = await SharedPreferences.getInstance();
-  //   String? jsonString = prefs.getString(course);
-  //   if (jsonString != null) {
-  //     Map<String, dynamic> jsonData = json.decode(jsonString);
-  //     print('the map is $jsonData');
-  //     return jsonData;
-  //   }
-  //   return {
-  //     'map': 'working',
-  //   };
-  // }
-
-  Future<Map<String, List<dynamic>>> getMap(
+  Future<Map<String, List<dynamic>>> getAttendanceMap(
     String nameOfJsonFile,
   ) async {
     final prefs = await SharedPreferences.getInstance();
@@ -160,5 +169,4 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       return {};
     }
   }
-  // Future<void>
 }
