@@ -5,20 +5,76 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/base_state/course_state.dart';
 
-final courseProvider =
-    StateNotifierProvider.family((ref, day) => CourseNotifier());
+final attendanceProvider =
+    StateNotifierProvider.family((ref, day) => AttendanceNotifier());
 
-class CourseNotifier extends StateNotifier<CourseState> {
-  CourseNotifier() : super(const CourseInitialState());
+class AttendanceNotifier extends StateNotifier<AttendanceState> {
+  AttendanceNotifier() : super(const AttendanceInitialState());
 
-  void attendedList(String message, List<dynamic>? attended) {
-    state = const CourseLoadingState();
-    if (!attended!.contains(message)) {
-      attended.add(message);
-      //save the person in the main attendance sheet fro the particular day
+  Future<void> attendedList(
+    String name,
+    String day,
+    String courseName,
+    List<dynamic>? attended,
+  ) async {
+    print('The attended name is $name');
+    try {
+      state = const AttendanceLoadingState();
+      if (!attended!.contains(name)) {
+        attended.add(name);
+        print('the attended students are $attended');
+        state = AttendanceSuccessState(data: attended);
+        //save the person in the main attendance sheet fro the particular day
+        await saveOrUpdateJsonInSharedPreferences(
+          attended,
+          day,
+          courseName,
+        );
+      } else {
+        state = AttendanceSuccessState(data: attended);
+      }
+    } catch (e) {
+      rethrow;
     }
-    state = CourseSuccessState(data: attended);
+  }
+}
 
-    print('The state is $state');
+Future<void> saveOrUpdateJsonInSharedPreferences(
+  List attendedStudents,
+  String day,
+  String courseName,
+) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+
+  String? existingJsonString = prefs.getString(courseName); //Course 1
+
+  // for(int i  = 0; i<listOfOutputs.length; i++){
+  //   print('The $i st list of $key is ${listOfOutputs[i]} ');
+  // }
+
+  if (existingJsonString == null) {
+    // If the JSON file doesn't exist, create a new one with the provided key and value
+    // Map<String, dynamic> newJsonData = {key: []};
+    Map<String, dynamic> newJsonData = {day: attendedStudents};
+    // Map<String, List<List<double>>> newJsonData = {key: listOfOutputs};
+    await prefs.setString(courseName, jsonEncode(newJsonData));
+  } else {
+    // If the JSON file exists, update it
+    Map<String, dynamic> existingJson =
+        json.decode(existingJsonString) as Map<String, dynamic>;
+
+    // Check if the key already exists in the JSON
+    if (existingJson.containsKey(day)) {
+      // If the key exists, update its value
+      existingJson[day] = attendedStudents;
+    } else {
+      // If the key doesn't exist, add a new key-value pair
+      existingJson[day] = attendedStudents;
+    }
+
+    await prefs.setString(courseName, jsonEncode(existingJson));
+    // dynamic printMap = await readMapFromSharedPreferencesFromTrainDataSource(nameOfJsonFile);
+    // print('The name of the file is $nameOfJsonFile');
+    // print(printMap);
   }
 }

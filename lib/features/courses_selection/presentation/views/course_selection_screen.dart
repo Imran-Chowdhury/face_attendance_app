@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:face_attendance_app/features/train_face/presentation/views/home_screen.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import 'package:camera/camera.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_screen.dart';
@@ -89,15 +90,26 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
     // final helloWorld = ref.watch(helloWorldProvider);
     Constants constant = Constants();
 
-    Map<String, List<dynamic>> jsonData = {
-      'Day 1': ['Imran', 'Aonmoy', 'Akas', 'Anan'],
-    };
-
     return Scaffold(
       backgroundColor: const Color(0xFF3a3b45),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Center(
+            child: CourseButton(
+              // courseName: 'Course 1',
+              courseName: 'Home Screen',
+              goToCourse: () {
+                Navigator.push(
+                  context,
+                  // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => HomeScreen(),
+                  ),
+                );
+              },
+            ),
+          ),
           Center(
             child: CourseButton(
               // courseName: 'Course 1',
@@ -132,18 +144,20 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
               },
             ),
           ),
-          // ElevatedButton(
-          //     onPressed: initializeJsonFiles,
-          //     child: const Text('Create files')),
-          // const SizedBox(
-          //   height: 10.0,
-          // ),
-          // ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
-          // const SizedBox(
-          //   height: 10.0,
-          // ),
+          ElevatedButton(
+              onPressed: initializeJsonFiles,
+              child: const Text('Create files')),
+          const SizedBox(
+            height: 10.0,
+          ),
+          ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
+          const SizedBox(
+            height: 10.0,
+          ),
           // ElevatedButton(
           //     onPressed: clearAllPrefs, child: const Text('Delete files')),
+          ElevatedButton(
+              onPressed: deleteAllJsonFiles, child: const Text('Delete files')),
         ],
       ),
     );

@@ -36,7 +36,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
 
     fetchInitialData();
 
-    print('The attendance map is $attendanceSheetMap');
+    // print('The attendance map is $attendanceSheetMap');
   }
 
   Future<void> fetchInitialData() async {
@@ -47,6 +47,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       attendanceSheetMap = attendance;
       mapOfStudents = students;
     });
+    print('The attendance map is $attendanceSheetMap');
   }
 
   @override
@@ -69,16 +70,6 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
           : (courseScreenState is CourseScreeenSuccessState)
               ? ListofDates(courseScreenState.data)
               : ListofDates(listOfDays),
-
-      // ListView.builder(
-      //     itemCount: listOfDays.length,
-      //     itemBuilder: (context, index) {
-      //       print('The list of days is $listOfDays');
-      //       return ListTile(
-      //         title: Text(listOfDays![index]),
-      //       );
-      //     },
-      //   ),
       floatingActionButton:
           add(context, courseScreenNotifier, listOfDays, attendanceSheetMap),
     );
@@ -89,8 +80,14 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       itemCount: listOfDays?.length,
       itemBuilder: (context, index) {
         print('The list of days is $listOfDays');
-        return ListTile(
-          title: Text(listOfDays![index]),
+        return GestureDetector(
+          onTap: () {
+            navigateToDay(context, listOfDays[index], attendanceSheetMap,
+                widget.courseName);
+          },
+          child: ListTile(
+            title: Text(listOfDays![index]),
+          ),
         );
       },
     );
@@ -119,7 +116,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     try {
       if (attendanceSheetMap!.isNotEmpty) {
         for (String key in attendanceSheetMap.keys) {
-          daysList!.add(key);
+          daysList.add(key);
         }
         print(daysList);
       } else {
@@ -131,7 +128,8 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     return daysList;
   }
 
-  void navigateToDay(context, String day, dynamic attendanceSheet) {
+  void navigateToDay(
+      context, String day, dynamic attendanceSheet, String courseName) {
     Navigator.push(
       context,
       // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
@@ -139,6 +137,7 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
         builder: (context) => CourseDayScreen(
           day: day,
           attendedStudentsMap: attendanceSheet,
+          courseName: courseName,
         ),
       ),
     );

@@ -128,32 +128,29 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   Widget build(BuildContext context) {
     late String personName;
     final _formKey = GlobalKey<FormState>();
+////////////////////////////////////////////////////////////////changes///////////////////////////////////////////////
+    // final detectController = ref.watch(faceDetectionProvider.notifier);
+    // final detectState = ref.watch(faceDetectionProvider);
+    // final trainController = ref.watch(trainFaceProvider.notifier);
+    // final trainState = ref.watch(trainFaceProvider);
+    // final recognizeController = ref.watch(recognizefaceProvider.notifier);
+    // final recognizeState = ref.watch(recognizefaceProvider);
+    // final TextEditingController textFieldController = TextEditingController();
 
-    final detectController = ref.watch(faceDetectionProvider.notifier);
-    final detectState = ref.watch(faceDetectionProvider);
+    final detectController =
+        ref.watch(faceDetectionProvider('family').notifier);
+    final detectState = ref.watch(faceDetectionProvider('family'));
     final trainController = ref.watch(trainFaceProvider.notifier);
     final trainState = ref.watch(trainFaceProvider);
-    final recognizeController = ref.watch(recognizefaceProvider.notifier);
-    final recognizeState = ref.watch(recognizefaceProvider);
+    final recognizeController =
+        ref.watch(recognizefaceProvider('family').notifier);
+    final recognizeState = ref.watch(recognizefaceProvider('family'));
     final TextEditingController textFieldController = TextEditingController();
 
-    // double height = MediaQuery.of(context).size.height;
-    // double width =  MediaQuery.of(context).size.width;
-    //
-    // debugPrint('The width = $width and the height = $height');
-
-    //for deleting and printing name
-    // String fileName = 'galleryData';
-    // String fileName = 'galleryData2(th = 0.62)';
-    //String fileName = 'liveTraining(Th = 0.58, mean = std = 127.5)'; //for now livefeeds datas are in this file
-    // String fileName = 'testMap';
-    // String fileName = 'liveGallery-live';
-    // String fileName = 'liveTraining(with tflite helper)'; //for now livefeeds datas are in this file
-    // String fileName = 'Training(input[1,160,160,3], output[1,512])';
-    // String fileName = 'Total Students';
     Constants constant = Constants();
 
-    String fileName = constant.allStudent;
+    String fileName = 'Total Students';
+    // constant.allStudent;
 
     Uint8List convertImageToUint8List(img.Image image) {
       // Encode the image to PNG format
@@ -726,7 +723,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           isolateInterpreter: isolateInterpreter,
           detectionController: detectController, faceDetector: faceDetector,
           cameras: cameras, interpreter: interpreter,
-          nameOfJsonFile: fileName,
+          studentFile: fileName,
+          family: 'Test',
           // livenessInterpreter: livenessInterpreter,
         ),
       ),

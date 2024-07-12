@@ -1,7 +1,5 @@
 import 'dart:math';
 
-// import 'package:face/features/recognize_face/domain/repository/recognize_face_repository.dart';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -40,12 +38,13 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     List output = List.filled(1 * outputShapeLength, null, growable: false)
         .reshape([1, outputShapeLength]);
 
-    // interpreter.run(input, output);
+    interpreter.run(input, output);
 
-    await isolateInterpreter.run(input, output);
+    // await isolateInterpreter.run(input, output);
 
     output = output.reshape([outputShapeLength]);
     var finalOutput = List.from(output);
+    print('The final output is $finalOutput');
 
     // print('The final output is $finalOutput');
     // print('The final output[0] is ${finalOutput[0]}');
@@ -69,14 +68,9 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     final stopwatch = Stopwatch()..start();
 
     double minDistance = double.infinity;
-    double cosineDistance;
-    // double  cosDis = double.infinity;
+
     String matchedName = '';
-    double cosThres = 0.80;
-    double maxDistance = 0.0;
-    Map<String, double> avgMap = {};
-    double avg = 0;
-    int counter = 0;
+
     try {
       trainings.forEach((key, value) {
         for (var innerList in value) {
@@ -121,9 +115,11 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
       stopwatch.stop();
       final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
       print('recognize Time: $elapsedSeconds seconds');
+      return matchedName;
 
-      return matchedName + minDistance.toString();
+      // return matchedName + minDistance.toString();
     } catch (e) {
+      print(e);
       rethrow;
     }
   }

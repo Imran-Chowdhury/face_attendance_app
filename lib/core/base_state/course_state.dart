@@ -1,29 +1,26 @@
-
-
-abstract class CourseState{
-  const CourseState();
+abstract class AttendanceState {
+  const AttendanceState();
 }
 
-class CourseInitialState extends CourseState{
-  const CourseInitialState();
+class AttendanceInitialState extends AttendanceState {
+  const AttendanceInitialState();
 }
 
-class  CourseLoadingState<T> extends CourseState{
-  const   CourseLoadingState({this.data});
+class AttendanceLoadingState<T> extends AttendanceState {
+  const AttendanceLoadingState({this.data});
 
   final T? data;
 }
 
-class  CourseSuccessState<T> extends CourseState {
-  const  CourseSuccessState({this.data, this.name});
+class AttendanceSuccessState<T> extends AttendanceState {
+  const AttendanceSuccessState({this.data, this.name});
 
   final T? data;
   final T? name;
 }
 
-
-class  CourseErrorState extends CourseState {
+class AttendanceErrorState extends AttendanceState {
   final String errorMessage;
 
-  const  CourseErrorState(this.errorMessage);
+  const AttendanceErrorState(this.errorMessage);
 }
