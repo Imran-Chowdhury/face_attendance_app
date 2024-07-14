@@ -42,80 +42,91 @@ import '../../../live_feed/presentation/views/live_feed_training_screen.dart';
 class HomeScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
+  HomeScreen({
+    required this.isolateInterpreter,
+    required this.faceDetector,
+    required this.cameras,
+    required this.interpreter,
+  });
+
+  final FaceDetector faceDetector;
+  late List<CameraDescription> cameras;
+  final tf_lite.Interpreter interpreter;
+  final tf_lite.IsolateInterpreter isolateInterpreter;
 }
 
 // 2. extend [ConsumerState]
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  late FaceDetector faceDetector;
-  late tf_lite.Interpreter interpreter;
-  late tf_lite.Interpreter livenessInterpreter;
-  late tf_lite.IsolateInterpreter isolateInterpreter;
-  List<CameraDescription> cameras = [];
+  // late FaceDetector faceDetector;
+  // late tf_lite.Interpreter interpreter;
 
-  @override
-  void initState() {
-    super.initState();
-    initialize();
-  }
+  // late tf_lite.IsolateInterpreter isolateInterpreter;
+  // List<CameraDescription> cameras = [];
 
-  void initialize() {
-    loadModelsAndDetectors();
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   initialize();
+  // }
 
-  Future<void> loadModelsAndDetectors() async {
-    // Load models and initialize detectors
-    interpreter = await loadModel();
-    isolateInterpreter =
-        await IsolateInterpreter.create(address: interpreter.address);
-    // livenessInterpreter = await loadLivenessModel();
-    cameras = await availableCameras();
+  // void initialize() {
+  //   loadModelsAndDetectors();
+  // }
 
-    // Initialize face detector
-    final faceDetectorOptions = FaceDetectorOptions(
-      minFaceSize: 0.2,
-      performanceMode: FaceDetectorMode.accurate, // or .fast
-    );
-    faceDetector = FaceDetector(options: faceDetectorOptions);
-  }
+  // Future<void> loadModelsAndDetectors() async {
+  //   // Load models and initialize detectors
+  //   interpreter = await loadModel();
+  //   isolateInterpreter =
+  //       await IsolateInterpreter.create(address: interpreter.address);
+  //   // livenessInterpreter = await loadLivenessModel();
+  //   cameras = await availableCameras();
 
-  @override
-  void dispose() {
-    // Dispose resources
+  //   // Initialize face detector
+  //   final faceDetectorOptions = FaceDetectorOptions(
+  //     minFaceSize: 0.2,
+  //     performanceMode: FaceDetectorMode.accurate, // or .fast
+  //   );
+  //   faceDetector = FaceDetector(options: faceDetectorOptions);
+  // }
 
-    faceDetector.close();
-    interpreter.close();
-    isolateInterpreter.close();
-    super.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   // Dispose resources
 
-  Future<tf_lite.Interpreter> loadModel() async {
-    InterpreterOptions interpreterOptions = InterpreterOptions();
-    // final processorNum =  Platform.numberOfProcessors;
-    // print('The number of processors are $processorNum');
+  //   faceDetector.close();
+  //   interpreter.close();
+  //   isolateInterpreter.close();
+  //   super.dispose();
+  // }
 
-    if (Platform.isAndroid) {
-      interpreterOptions.addDelegate(XNNPackDelegate(
-          options:
-              XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-    }
+  // Future<tf_lite.Interpreter> loadModel() async {
+  //   InterpreterOptions interpreterOptions = InterpreterOptions();
+  //   // final processorNum =  Platform.numberOfProcessors;
+  //   // print('The number of processors are $processorNum');
 
-    if (Platform.isIOS) {
-      interpreterOptions.addDelegate(GpuDelegate());
-    }
+  //   if (Platform.isAndroid) {
+  //     interpreterOptions.addDelegate(XNNPackDelegate(
+  //         options:
+  //             XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
+  //   }
 
-    // GpuDelegateV2 gpuDelegateV2 = tf_lite.GpuDelegateV2(options: tf_lite.GpuDelegateOptionsV2());
-    // interpreterOptions.addDelegate(gpuDelegateV2);
+  //   if (Platform.isIOS) {
+  //     interpreterOptions.addDelegate(GpuDelegate());
+  //   }
 
-    // return await TfLiteModel.Interpreter.fromAsset('assets/facenet.tflite');
-    // return await TfLiteModel.Interpreter.fromAsset('assets/mobile_face_net.tflite');
-    // return await TfLiteModel.Interpreter.fromAsset('assets/FaceMobileNet_Float32.tflite');
-    return await tf_lite.Interpreter.fromAsset(
-      'assets/facenet_512.tflite',
-      options: interpreterOptions..threads = Platform.numberOfProcessors,
-    );
-    // return await TfLiteModel.Interpreter.fromAsset('assets/facenet(face_recognizer_android_repo).tflite');
-    // facenet(face_recognizer_android_repo).tflite
-  }
+  //   // GpuDelegateV2 gpuDelegateV2 = tf_lite.GpuDelegateV2(options: tf_lite.GpuDelegateOptionsV2());
+  //   // interpreterOptions.addDelegate(gpuDelegateV2);
+
+  //   // return await TfLiteModel.Interpreter.fromAsset('assets/facenet.tflite');
+  //   // return await TfLiteModel.Interpreter.fromAsset('assets/mobile_face_net.tflite');
+  //   // return await TfLiteModel.Interpreter.fromAsset('assets/FaceMobileNet_Float32.tflite');
+  //   return await tf_lite.Interpreter.fromAsset(
+  //     'assets/facenet_512.tflite',
+  //     options: interpreterOptions..threads = Platform.numberOfProcessors,
+  //   );
+  //   // return await TfLiteModel.Interpreter.fromAsset('assets/facenet(face_recognizer_android_repo).tflite');
+  //   // facenet(face_recognizer_android_repo).tflite
+  // }
 
   // Future<tf_lite.Interpreter> loadLivenessModel() async {
   //   // return await TfLiteModel.Interpreter.fromAsset('assets/FaceDeSpoofing.tflite');
@@ -140,8 +151,8 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final detectController =
         ref.watch(faceDetectionProvider('family').notifier);
     final detectState = ref.watch(faceDetectionProvider('family'));
-    final trainController = ref.watch(trainFaceProvider.notifier);
-    final trainState = ref.watch(trainFaceProvider);
+    final trainController = ref.watch(trainFaceProvider('family').notifier);
+    final trainState = ref.watch(trainFaceProvider('family'));
     final recognizeController =
         ref.watch(recognizefaceProvider('family').notifier);
     final recognizeState = ref.watch(recognizefaceProvider('family'));
@@ -162,7 +173,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       return uint8List;
     }
 
-    debugPrint('the length of the camera is ${cameras.length}');
+    debugPrint('the length of the camera is ${widget.cameras.length}');
 
     return GestureDetector(
       onTap: () {
@@ -587,12 +598,12 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     if (formKey.currentState!.validate()) {
       //detect face and train the mobilefacenet model
       await detectController
-          .detectFacesFromImages(faceDetector, 'Train from gallery')
+          .detectFacesFromImages(widget.faceDetector, 'Train from gallery')
           .then((imgList) async {
         final stopwatch = Stopwatch()..start();
 
         await trainController.pickImagesAndTrain(
-            personName, interpreter, imgList, fileName);
+            personName, widget.interpreter, imgList, fileName);
 
         personName = '';
 
@@ -620,19 +631,19 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => CameraCaptureScreen(
-                cameras: cameras,
+                cameras: widget.cameras,
               )),
     );
 
     if (capturedImages != null) {
       await detectController
           .detectFacesFromImages(
-              faceDetector, 'Train from captures', capturedImages)
+              widget.faceDetector, 'Train from captures', capturedImages)
           .then((imgList) async {
         final stopwatch = Stopwatch()..start();
 
         await trainController.pickImagesAndTrain(
-            personName, interpreter, imgList, fileName);
+            personName, widget.interpreter, imgList, fileName);
 
         // personName = '';
 
@@ -653,7 +664,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       context,
       MaterialPageRoute(
           builder: (context) => CameraBurstCaptureScreen(
-                cameras: cameras,
+                cameras: widget.cameras,
               )),
     );
 
@@ -685,25 +696,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     // print('The imglist length is ${imgList.length}');
     await detectController
         .detectFromLiveFeedForRecognition(
-            inputImageList, imgImageList, faceDetector)
+            inputImageList, imgImageList, widget.faceDetector)
         .then((imgList) async {
       // passing the list of all face images for saving in database.
       await trainController.pickImagesAndTrain(
-          personName, interpreter, imgList, fileName);
+          personName, widget.interpreter, imgList, fileName);
     });
   }
 
   Future<void> recognizeImage(
       {detectController, recognizeController, fileName}) async {
     await detectController
-        .detectFacesFromImages(faceDetector, 'Recognize from gallery')
+        .detectFacesFromImages(widget.faceDetector, 'Recognize from gallery')
         .then((value) async {
       //For collection of data for FAR and FRR
       for (var i = 0; i < value.length; i++) {
         final stopwatch = Stopwatch()..start();
 
         await recognizeController.pickImagesAndRecognize(
-            value[i], interpreter, isolateInterpreter, fileName);
+            value[i], widget.interpreter, widget.isolateInterpreter, fileName);
 
         stopwatch.stop();
         final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
@@ -720,11 +731,15 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
       MaterialPageRoute(
         builder: (context) => LiveFeedScreen(
-          isolateInterpreter: isolateInterpreter,
-          detectionController: detectController, faceDetector: faceDetector,
-          cameras: cameras, interpreter: interpreter,
+          isolateInterpreter: widget.isolateInterpreter,
+          // detectionController: detectController,
+          faceDetector: widget.faceDetector,
+          cameras: cameras,
+          interpreter: widget.interpreter,
           studentFile: fileName,
-          family: 'Test',
+          family: 'family',
+          // family: 'Test',
+
           // livenessInterpreter: livenessInterpreter,
         ),
       ),

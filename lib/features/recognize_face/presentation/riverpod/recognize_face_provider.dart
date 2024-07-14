@@ -7,9 +7,11 @@ import '../../../../core/base_state/base_state.dart';
 
 import '../../domain/use_case/recognize_face_use_case.dart';
 
-// final recognizefaceProvider = StateNotifierProvider<RecognizeFaceNotifier,BaseState>(
-//       (ref) {
-//     return RecognizeFaceNotifier(ref: ref, useCase: ref.read(recognizeFaceUseCaseProvider));
+// final recognizefaceProvider =
+//     StateNotifierProvider<RecognizeFaceNotifier, BaseState>(
+//   (ref) {
+//     return RecognizeFaceNotifier(
+//         ref: ref, useCase: ref.read(recognizeFaceUseCaseProvider));
 //   },
 // );
 

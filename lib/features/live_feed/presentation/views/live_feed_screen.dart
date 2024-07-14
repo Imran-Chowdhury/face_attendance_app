@@ -1,4 +1,5 @@
 import 'package:camera/camera.dart';
+import 'package:face_attendance_app/features/courses_selection/presentation/riverpod/course_selection_riverpod.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_day.dart';
 
 import 'package:flutter/material.dart';
@@ -14,19 +15,20 @@ import '../../../recognize_face/presentation/riverpod/recognize_face_provider.da
 
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 
+// ignore: must_be_immutable
 class LiveFeedScreen extends ConsumerStatefulWidget {
   LiveFeedScreen({
-    Key? key,
+    super.key,
     required this.isolateInterpreter,
-    required this.detectionController,
+    // required this.detectionController,
     required this.faceDetector,
     required this.cameras,
     required this.interpreter,
     required this.studentFile,
     required this.family,
-  }) : super(key: key);
+  });
 
-  final FaceDetectionNotifier detectionController;
+  // final FaceDetectionNotifier detectionController;
   final FaceDetector faceDetector;
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
@@ -105,10 +107,10 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
     await controller.stopImageStream();
     await controller.dispose();
 
-    await widget.faceDetector.close();
-    await widget.isolateInterpreter.close();
-    widget.cameras.clear();
-    widget.interpreter.close();
+    // await widget.faceDetector.close();
+    // await widget.isolateInterpreter.close();
+    // widget.cameras.clear();
+    // widget.interpreter.close();
 
     print('disposed');
   }
@@ -120,7 +122,6 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
 
     final detectController =
         ref.watch(faceDetectionProvider(widget.family).notifier);
-
     final recognizeController =
         ref.watch(recognizefaceProvider(widget.family).notifier);
 
@@ -195,44 +196,46 @@ class _LiveFeedScreenState extends ConsumerState<LiveFeedScreen> {
     //   message = 'No face detected';
     // }
 
-    return Scaffold(
-      // appBar: AppBar(
-      //   leading: GestureDetector(
-      //     onTap: () async {
-      //       await disposeController();
-      //       Navigator.pop(context);
-      //     },
-      //     child: const Icon(Icons.arrow_back),
-      //   ),
-      // ),
-      body: Stack(
-        fit: StackFit.expand,
-        children: [
-          // AspectRatio(
-          //    aspectRatio: controller.value.aspectRatio,
-          // child: CameraPreview(controller)),
-          //  Positioned(
-          //   top: 16,
-          //   left: 16,
-          //   child: GestureDetector(
-          //     child: ,
-          //   ),
+    return SafeArea(
+      child: Scaffold(
+        // appBar: AppBar(
+        //   leading: GestureDetector(
+        //     onTap: () async {
+        //       await disposeController();
+        //       Navigator.pop(context);
+        //     },
+        //     child: const Icon(Icons.arrow_back),
+        //   ),
+        // ),
+        body: Stack(
+          fit: StackFit.expand,
+          children: [
+            // AspectRatio(
+            //    aspectRatio: controller.value.aspectRatio,
+            // child: CameraPreview(controller)),
+            //  Positioned(
+            //   top: 16,
+            //   left: 16,
+            //   child: GestureDetector(
+            //     child: ,
+            //   ),
 
-          // ),
+            // ),
 
-          CameraPreview(controller),
-          Positioned(
-            bottom: 16,
-            left: 16,
-            child: Text(
-              message,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 24,
+            CameraPreview(controller),
+            Positioned(
+              bottom: 16,
+              left: 16,
+              child: Text(
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -22,67 +22,66 @@ class CourseSelectionScreen extends ConsumerStatefulWidget {
 
 // 2. extend [ConsumerState]
 class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
-//  late FaceDetector faceDetector;
-//   late tf_lite.Interpreter interpreter;
-//   late tf_lite.Interpreter livenessInterpreter;
-//   late tf_lite.IsolateInterpreter isolateInterpreter;
-//   List<CameraDescription> cameras = [];
+  late FaceDetector faceDetector;
+  late tf_lite.Interpreter interpreter;
+  // late tf_lite.Interpreter livenessInterpreter;
+  late tf_lite.IsolateInterpreter isolateInterpreter;
+  List<CameraDescription> cameras = [];
 
-//   @override
-//   void initState() {
-//     super.initState();
-//     initialize();
-//   }
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
 
-//   void initialize() {
-//     loadModelsAndDetectors();
-//   }
+  void initialize() {
+    loadModelsAndDetectors();
+  }
 
-//   Future<void> loadModelsAndDetectors() async {
-//     // Load models and initialize detectors
-//     interpreter = await loadModel();
-//     isolateInterpreter =
-//         await IsolateInterpreter.create(address: interpreter.address);
-//     // livenessInterpreter = await loadLivenessModel();
-//     cameras = await availableCameras();
+  Future<void> loadModelsAndDetectors() async {
+    // Load models and initialize detectors
+    interpreter = await loadModel();
+    isolateInterpreter =
+        await IsolateInterpreter.create(address: interpreter.address);
+    // livenessInterpreter = await loadLivenessModel();
+    cameras = await availableCameras();
 
-//     // Initialize face detector
-//     final faceDetectorOptions = FaceDetectorOptions(
-//       minFaceSize: 0.2,
-//       performanceMode: FaceDetectorMode.accurate, // or .fast
-//     );
-//     faceDetector = FaceDetector(options: faceDetectorOptions);
-//   }
+    // Initialize face detector
+    final faceDetectorOptions = FaceDetectorOptions(
+      minFaceSize: 0.2,
+      performanceMode: FaceDetectorMode.accurate, // or .fast
+    );
+    faceDetector = FaceDetector(options: faceDetectorOptions);
+  }
 
-//   @override
-//   void dispose() {
-//     // Dispose resources
+  @override
+  void dispose() {
+    // Dispose resources
 
-//     faceDetector.close();
-//     interpreter.close();
-//     isolateInterpreter.close();
-//     super.dispose();
-//   }
+    faceDetector.close();
+    interpreter.close();
+    isolateInterpreter.close();
+    super.dispose();
+  }
 
-//   Future<tf_lite.Interpreter> loadModel() async {
-//     InterpreterOptions interpreterOptions = InterpreterOptions();
+  Future<tf_lite.Interpreter> loadModel() async {
+    InterpreterOptions interpreterOptions = InterpreterOptions();
 
-//     if (Platform.isAndroid) {
-//       interpreterOptions.addDelegate(XNNPackDelegate(
-//           options:
-//               XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-//     }
+    if (Platform.isAndroid) {
+      interpreterOptions.addDelegate(XNNPackDelegate(
+          options:
+              XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
+    }
 
-//     if (Platform.isIOS) {
-//       interpreterOptions.addDelegate(GpuDelegate());
-//     }
+    if (Platform.isIOS) {
+      interpreterOptions.addDelegate(GpuDelegate());
+    }
 
-//     return await tf_lite.Interpreter.fromAsset(
-//       'assets/facenet_512.tflite',
-//       options: interpreterOptions..threads = Platform.numberOfProcessors,
-//     );
-
-//   }
+    return await tf_lite.Interpreter.fromAsset(
+      'assets/facenet_512.tflite',
+      options: interpreterOptions..threads = Platform.numberOfProcessors,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +103,12 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                   context,
                   // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
                   MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
+                    builder: (context) => HomeScreen(
+                      interpreter: interpreter,
+                      faceDetector: faceDetector,
+                      isolateInterpreter: isolateInterpreter,
+                      cameras: cameras,
+                    ),
                   ),
                 );
               },
@@ -115,7 +119,10 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
               // courseName: 'Course 1',
               courseName: constant.course_1,
               goToCourse: () {
-                navigateToCourses(context, constant.course_1);
+                //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
+                // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
+                navigateToCourses(context, constant.course_1,
+                    isolateInterpreter, faceDetector, cameras, interpreter);
               },
             ),
           ),
@@ -124,7 +131,8 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                 // courseName: 'Course 2',
                 courseName: constant.course_2,
                 goToCourse: () {
-                  navigateToCourses(context, constant.course_2);
+                  navigateToCourses(context, constant.course_2,
+                      isolateInterpreter, faceDetector, cameras, interpreter);
                 }),
           ),
           Center(
@@ -132,7 +140,8 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                 // courseName: 'Course 3',
                 courseName: constant.course_3,
                 goToCourse: () {
-                  navigateToCourses(context, constant.course_3);
+                  navigateToCourses(context, constant.course_3,
+                      isolateInterpreter, faceDetector, cameras, interpreter);
                 }),
           ),
           Center(
@@ -140,7 +149,8 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
               // courseName: 'Course 4',
               courseName: constant.course_4,
               goToCourse: () {
-                navigateToCourses(context, constant.course_4);
+                navigateToCourses(context, constant.course_4,
+                    isolateInterpreter, faceDetector, cameras, interpreter);
               },
             ),
           ),
@@ -219,13 +229,28 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
     // Refresh the keys list after clearing
     // _loadKeys();
   }
+  // required this.isolateInterpreter,
+  // required this.detectionController,
+  // required this.faceDetector,
+  // required this.cameras,
+  // required this.interpreter,
 
-  void navigateToCourses(context, String courseName) {
+  void navigateToCourses(
+      context,
+      String courseName,
+      tf_lite.IsolateInterpreter isolateInterpreter,
+      FaceDetector faceDetector,
+      List<CameraDescription> cameras,
+      tf_lite.Interpreter interpreter) {
     Navigator.push(
       context,
       // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
       MaterialPageRoute(
         builder: (context) => CourseScreen(
+          interpreter: interpreter,
+          isolateInterpreter: isolateInterpreter,
+          cameras: cameras,
+          faceDetector: faceDetector,
           courseName: courseName,
         ),
       ),

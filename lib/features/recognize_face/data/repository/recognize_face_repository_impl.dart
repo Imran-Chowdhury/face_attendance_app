@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
-
+import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import '../../../../core/utils/image_to_float32.dart';
 import '../../domain/repository/recognize_face_repository.dart';
 import '../data_source/recognize_face_data_source.dart';
@@ -19,8 +19,16 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
   RecognizeFaceDataSource dataSource;
 
   @override
-  Future<String> recognizeFace(img.Image image, Interpreter interpreter,
-      IsolateInterpreter isolateInterpreter, String nameOfJsonFile) async {
+  // Future<String> recognizeFace(
+  //     img.Image image,
+  //     Interpreter interpreter,
+  //     IsolateInterpreter isolateInterpreter,
+  //     String nameOfJsonFile)
+  Future<String> recognizeFace(
+      img.Image image,
+      tf_lite.Interpreter interpreter,
+      tf_lite.IsolateInterpreter isolateInterpreter,
+      String nameOfJsonFile) async {
     final stopwatch = Stopwatch()..start();
 
     final inputShape = interpreter.getInputTensor(0).shape;

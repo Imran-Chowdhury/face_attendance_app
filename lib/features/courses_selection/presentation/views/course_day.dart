@@ -20,81 +20,91 @@ class CourseDayScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<CourseDayScreen> createState() => _CourseDayScreenState();
 
-  CourseDayScreen(
-      {super.key,
-      required this.attendedStudentsMap,
-      required this.day,
-      required this.courseName});
+  CourseDayScreen({
+    super.key,
+    required this.attendedStudentsMap,
+    required this.day,
+    required this.courseName,
+    required this.isolateInterpreter,
+    required this.faceDetector,
+    required this.cameras,
+    required this.interpreter,
+  });
 
   Map<String, List<dynamic>> attendedStudentsMap;
   String day;
   String courseName;
+
+  final FaceDetector faceDetector;
+  late List<CameraDescription> cameras;
+  final tf_lite.Interpreter interpreter;
+  final tf_lite.IsolateInterpreter isolateInterpreter;
   // List<String> attendedStudentsList;
 }
 
 // 2. extend [ConsumerState]
 class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
-  late FaceDetector faceDetector;
-  late tf_lite.Interpreter interpreter;
-  late tf_lite.Interpreter livenessInterpreter;
-  late tf_lite.IsolateInterpreter isolateInterpreter;
-  List<CameraDescription> cameras = [];
-
-  @override
-  void initState() {
-    super.initState();
-    initialize();
-    // print('The day is $')
-  }
-
-  void initialize() {
-    loadModelsAndDetectors();
-  }
-
-  Future<void> loadModelsAndDetectors() async {
-    // Load models and initialize detectors
-    interpreter = await loadModel();
-    isolateInterpreter =
-        await IsolateInterpreter.create(address: interpreter.address);
-    // livenessInterpreter = await loadLivenessModel();
-    cameras = await availableCameras();
-
-    // Initialize face detector
-    final faceDetectorOptions = FaceDetectorOptions(
-      minFaceSize: 0.2,
-      performanceMode: FaceDetectorMode.accurate, // or .fast
-    );
-    faceDetector = FaceDetector(options: faceDetectorOptions);
-  }
+  // late FaceDetector faceDetector;
+  // late tf_lite.Interpreter interpreter;
+  // late tf_lite.Interpreter livenessInterpreter;
+  // late tf_lite.IsolateInterpreter isolateInterpreter;
+  // List<CameraDescription> cameras = [];
 
   // @override
-  // void dispose() {
-  //   // Dispose resources
-
-  //   faceDetector.close();
-  //   interpreter.close();
-  //   isolateInterpreter.close();
-  //   super.dispose();
+  // void initState() {
+  //   super.initState();
+  //   initialize();
+  //   // print('The day is $')
   // }
 
-  Future<tf_lite.Interpreter> loadModel() async {
-    InterpreterOptions interpreterOptions = InterpreterOptions();
+  // void initialize() {
+  //   loadModelsAndDetectors();
+  // }
 
-    if (Platform.isAndroid) {
-      interpreterOptions.addDelegate(XNNPackDelegate(
-          options:
-              XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-    }
+  // Future<void> loadModelsAndDetectors() async {
+  //   // Load models and initialize detectors
+  //   interpreter = await loadModel();
+  //   isolateInterpreter =
+  //       await IsolateInterpreter.create(address: interpreter.address);
+  //   // livenessInterpreter = await loadLivenessModel();
+  //   cameras = await availableCameras();
 
-    if (Platform.isIOS) {
-      interpreterOptions.addDelegate(GpuDelegate());
-    }
+  //   // Initialize face detector
+  //   final faceDetectorOptions = FaceDetectorOptions(
+  //     minFaceSize: 0.2,
+  //     performanceMode: FaceDetectorMode.accurate, // or .fast
+  //   );
+  //   faceDetector = FaceDetector(options: faceDetectorOptions);
+  // }
 
-    return await tf_lite.Interpreter.fromAsset(
-      'assets/facenet_512.tflite',
-      options: interpreterOptions..threads = Platform.numberOfProcessors,
-    );
-  }
+  // // @override
+  // // void dispose() {
+  // //   // Dispose resources
+
+  // //   faceDetector.close();
+  // //   interpreter.close();
+  // //   isolateInterpreter.close();
+  // //   super.dispose();
+  // // }
+
+  // Future<tf_lite.Interpreter> loadModel() async {
+  //   InterpreterOptions interpreterOptions = InterpreterOptions();
+
+  //   if (Platform.isAndroid) {
+  //     interpreterOptions.addDelegate(XNNPackDelegate(
+  //         options:
+  //             XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
+  //   }
+
+  //   if (Platform.isIOS) {
+  //     interpreterOptions.addDelegate(GpuDelegate());
+  //   }
+
+  //   return await tf_lite.Interpreter.fromAsset(
+  //     'assets/facenet_512.tflite',
+  //     options: interpreterOptions..threads = Platform.numberOfProcessors,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +113,11 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     final detectController = ref.watch(faceDetectionProvider(family).notifier);
     final recognizeState = ref.watch(recognizefaceProvider(family));
     final detectState = ref.watch(faceDetectionProvider(family));
+
+    // String family = "${widget.courseName}- ${widget.day}";
+    // final detectController = ref.watch(faceDetectionProvider.notifier);
+    // final recognizeState = ref.watch(recognizefaceProvider);
+    // final detectState = ref.watch(faceDetectionProvider);
 
     var attendanceState = ref.watch(attendanceProvider(family));
     AttendanceNotifier attendanceController =
@@ -115,27 +130,27 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
       attended = attendanceState.data;
     }
 
-    // if (recognizeState is SuccessState && detectState is SuccessState) {
-    //   Future(() {
-    //     String name = recognizeState.name;
-    //     attendanceController.attendedList(
-    //         name, widget.day, widget.courseName, attended);
-    //   });
-    // }
-
     if (recognizeState is SuccessState && detectState is SuccessState) {
-      // message = 'Recognized: ${recognizeState.name}';
       Future(() {
         String name = recognizeState.name;
         attendanceController.attendedList(
             name, widget.day, widget.courseName, attended);
       });
-    } else if (recognizeState is ErrorState && detectState is SuccessState) {
-      // message = ' ${recognizeState.errorMessage}';
-    } else if (detectState is ErrorState) {
-      // message = detectState.errorMessage;
-      // 'No face Detected';
     }
+
+    // if (recognizeState is SuccessState && detectState is SuccessState) {
+    //   // message = 'Recognized: ${recognizeState.name}';
+    //   Future(() {
+    //     String name = recognizeState.name;
+    //     attendanceController.attendedList(
+    //         name, widget.day, widget.courseName, attended);
+    //   });
+    // } else if (recognizeState is ErrorState && detectState is SuccessState) {
+    //   // message = ' ${recognizeState.errorMessage}';
+    // } else if (detectState is ErrorState) {
+    //   // message = detectState.errorMessage;
+    //   // 'No face Detected';
+    // }
 
     return Scaffold(
       body: Column(
@@ -197,11 +212,11 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
       // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
       MaterialPageRoute(
         builder: (context) => LiveFeedScreen(
-          isolateInterpreter: isolateInterpreter,
-          detectionController: detectController,
-          faceDetector: faceDetector,
+          isolateInterpreter: widget.isolateInterpreter,
+          // detectionController: detectController,
+          faceDetector: widget.faceDetector,
           cameras: cameras,
-          interpreter: interpreter,
+          interpreter: widget.interpreter,
           studentFile: fileName,
           family: family,
           // day: day,

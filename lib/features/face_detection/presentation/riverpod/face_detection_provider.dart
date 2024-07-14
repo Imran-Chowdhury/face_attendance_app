@@ -15,7 +15,7 @@ import 'package:image/image.dart' as img;
 //         FaceDetectionNotifier(
 //             ref: ref, useCase: ref.read(faceDetectionUseCaseProvider)));
 
-final faceDetectionProvider = StateNotifierProvider.family((ref, day) =>
+final faceDetectionProvider = StateNotifierProvider.family((ref, family) =>
     FaceDetectionNotifier(
         ref: ref, useCase: ref.read(faceDetectionUseCaseProvider)));
 

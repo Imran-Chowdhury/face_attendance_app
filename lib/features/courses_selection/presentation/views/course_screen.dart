@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:camera/camera.dart';
 import 'package:face_attendance_app/core/base_state/course_screen_state.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/riverpod/course_screen_riverpod.dart';
 
@@ -8,13 +9,29 @@ import 'package:face_attendance_app/features/courses_selection/presentation/view
 import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import '../../../../core/constants/constants.dart';
+import '../../../face_detection/presentation/riverpod/face_detection_provider.dart';
 
 class CourseScreen extends ConsumerStatefulWidget {
-  const CourseScreen({super.key, required this.courseName});
+  CourseScreen({
+    super.key,
+    required this.courseName,
+    required this.isolateInterpreter,
+    // required this.detectionController,
+    required this.faceDetector,
+    required this.cameras,
+    required this.interpreter,
+  });
   final String courseName;
+  // final FaceDetectionNotifier detectionController;
+
+  final FaceDetector faceDetector;
+  late List<CameraDescription> cameras;
+  final tf_lite.Interpreter interpreter;
+  final tf_lite.IsolateInterpreter isolateInterpreter;
 
   @override
   ConsumerState<CourseScreen> createState() => _CourseScreenState();
@@ -82,8 +99,16 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
         print('The list of days is $listOfDays');
         return GestureDetector(
           onTap: () {
-            navigateToDay(context, listOfDays[index], attendanceSheetMap,
-                widget.courseName);
+            navigateToDay(
+              context,
+              listOfDays[index],
+              attendanceSheetMap,
+              widget.courseName,
+              widget.isolateInterpreter,
+              widget.faceDetector,
+              widget.cameras,
+              widget.interpreter,
+            );
           },
           child: ListTile(
             title: Text(listOfDays![index]),
@@ -129,7 +154,14 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
   }
 
   void navigateToDay(
-      context, String day, dynamic attendanceSheet, String courseName) {
+      context,
+      String day,
+      dynamic attendanceSheet,
+      String courseName,
+      tf_lite.IsolateInterpreter isolateInterpreter,
+      FaceDetector faceDetector,
+      List<CameraDescription> cameras,
+      tf_lite.Interpreter interpreter) {
     Navigator.push(
       context,
       // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
@@ -138,6 +170,10 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
           day: day,
           attendedStudentsMap: attendanceSheet,
           courseName: courseName,
+          interpreter: interpreter,
+          isolateInterpreter: isolateInterpreter,
+          cameras: cameras,
+          faceDetector: faceDetector,
         ),
       ),
     );
