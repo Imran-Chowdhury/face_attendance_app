@@ -29,8 +29,11 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
   Ref ref;
   RecognizeFaceUseCase useCase;
 
-  Future<void> pickImagesAndRecognize(img.Image image, Interpreter interpreter,
-      IsolateInterpreter isolateInterpreter, String nameOfJsonFile) async {
+  Future<String> pickImagesAndRecognize(
+      img.Image image,
+      Interpreter interpreter,
+      IsolateInterpreter isolateInterpreter,
+      String nameOfJsonFile) async {
     state = const LoadingState();
     final stopwatch = Stopwatch()..start();
 
@@ -50,5 +53,31 @@ class RecognizeFaceNotifier extends StateNotifier<BaseState> {
       // print('No match!');
       state = const ErrorState('No match!');
     }
+    return name;
+  }
+
+  Future<String> liveFeedRecognize(img.Image image, Interpreter interpreter,
+      IsolateInterpreter isolateInterpreter, String nameOfJsonFile) async {
+    state = const LoadingState();
+    final stopwatch = Stopwatch()..start();
+
+    final name = await useCase.recognizeFace(
+        image, interpreter, isolateInterpreter, nameOfJsonFile);
+
+    stopwatch.stop();
+    final double elapsedSeconds = stopwatch.elapsedMilliseconds / 1000.0;
+
+    // Print the elapsed time in seconds
+    print('The Recognition Execution time: $elapsedSeconds seconds');
+
+    if (name.isNotEmpty) {
+      // print('the name is $name');
+      state = const SuccessState();
+    } else {
+      // print('No match!');
+      state = const ErrorState('No match!');
+    }
+
+    return name;
   }
 }

@@ -26,6 +26,10 @@ class FaceDetectionNotifier extends StateNotifier<BaseState> {
   FaceDetectionNotifier({required this.ref, required this.useCase})
       : super(const InitialState());
 
+  Future<void> changeToInitialState() async {
+    state = const InitialState();
+  }
+
   Future<List> detectFacesFromImages(
       FaceDetector faceDetector, String operationType,
       [List<XFile>? capturedImages]) async {

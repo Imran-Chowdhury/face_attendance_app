@@ -1,14 +1,14 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:face_attendance_app/core/utils/customButton.dart';
+
 import 'package:face_attendance_app/features/live_feed/presentation/views/live_feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
-import 'package:tflite_flutter/tflite_flutter.dart';
+
 import '../../../../core/base_state/base_state.dart';
 import '../../../../core/base_state/course_state.dart';
 import '../../../../core/constants/constants.dart';
@@ -39,80 +39,31 @@ class CourseDayScreen extends ConsumerStatefulWidget {
   late List<CameraDescription> cameras;
   final tf_lite.Interpreter interpreter;
   final tf_lite.IsolateInterpreter isolateInterpreter;
+
   // List<String> attendedStudentsList;
 }
 
 // 2. extend [ConsumerState]
 class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
-  // late FaceDetector faceDetector;
-  // late tf_lite.Interpreter interpreter;
-  // late tf_lite.Interpreter livenessInterpreter;
-  // late tf_lite.IsolateInterpreter isolateInterpreter;
-  // List<CameraDescription> cameras = [];
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   initialize();
-  //   // print('The day is $')
-  // }
-
-  // void initialize() {
-  //   loadModelsAndDetectors();
-  // }
-
-  // Future<void> loadModelsAndDetectors() async {
-  //   // Load models and initialize detectors
-  //   interpreter = await loadModel();
-  //   isolateInterpreter =
-  //       await IsolateInterpreter.create(address: interpreter.address);
-  //   // livenessInterpreter = await loadLivenessModel();
-  //   cameras = await availableCameras();
-
-  //   // Initialize face detector
-  //   final faceDetectorOptions = FaceDetectorOptions(
-  //     minFaceSize: 0.2,
-  //     performanceMode: FaceDetectorMode.accurate, // or .fast
-  //   );
-  //   faceDetector = FaceDetector(options: faceDetectorOptions);
-  // }
-
-  // // @override
-  // // void dispose() {
-  // //   // Dispose resources
-
-  // //   faceDetector.close();
-  // //   interpreter.close();
-  // //   isolateInterpreter.close();
-  // //   super.dispose();
-  // // }
-
-  // Future<tf_lite.Interpreter> loadModel() async {
-  //   InterpreterOptions interpreterOptions = InterpreterOptions();
-
-  //   if (Platform.isAndroid) {
-  //     interpreterOptions.addDelegate(XNNPackDelegate(
-  //         options:
-  //             XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-  //   }
-
-  //   if (Platform.isIOS) {
-  //     interpreterOptions.addDelegate(GpuDelegate());
-  //   }
-
-  //   return await tf_lite.Interpreter.fromAsset(
-  //     'assets/facenet_512.tflite',
-  //     options: interpreterOptions..threads = Platform.numberOfProcessors,
-  //   );
-  // }
+  List<dynamic>? attended;
+  @override
+  void initState() {
+    attended = mapToList(widget.attendedStudentsMap, widget.day);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     Constants constant = Constants();
     String family = "${widget.courseName}- ${widget.day}";
     final detectController = ref.watch(faceDetectionProvider(family).notifier);
+    final recognizeController =
+        ref.watch(recognizefaceProvider(family).notifier);
+
     final recognizeState = ref.watch(recognizefaceProvider(family));
     final detectState = ref.watch(faceDetectionProvider(family));
+    final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+    bool attendedListExecuted = false;
 
     // String family = "${widget.courseName}- ${widget.day}";
     // final detectController = ref.watch(faceDetectionProvider.notifier);
@@ -123,20 +74,36 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     AttendanceNotifier attendanceController =
         ref.watch(attendanceProvider(family).notifier);
 
-    List<dynamic>? attended = mapToList(widget.attendedStudentsMap, widget.day);
+    // List<dynamic>? attended = mapToList(widget.attendedStudentsMap, widget.day);
     print('the attended list is $attended');
 
     if (attendanceState is AttendanceSuccessState) {
       attended = attendanceState.data;
     }
 
-    if (recognizeState is SuccessState && detectState is SuccessState) {
-      Future(() {
-        String name = recognizeState.name;
-        attendanceController.attendedList(
-            name, widget.day, widget.courseName, attended);
-      });
-    }
+    // if (recognizeState is SuccessState && detectState is SuccessState) {
+    //   // Execute attendedList only once when both states are SuccessState
+    //   if (attendedListExecuted == false) {
+    //     Future(() {
+    //       String name = recognizeState.name;
+    //       attendanceController.attendedList(
+    //           name, widget.day, widget.courseName, attended);
+    //     });
+    //     // Set the flag to true
+    //     attendedListExecuted = true;
+    //   }
+    // } else {
+    //   attendedListExecuted =
+    //       false; // Reset the flag if states are not both SuccessState
+    // }
+
+    // if (recognizeState is SuccessState && detectState is SuccessState) {
+    //   Future(() {
+    //     String name = recognizeState.name;
+    //     attendanceController.attendedList(
+    //         name, widget.day, widget.courseName, attended);
+    //   });
+    // }
 
     // if (recognizeState is SuccessState && detectState is SuccessState) {
     //   // message = 'Recognized: ${recognizeState.name}';
@@ -146,27 +113,44 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     //         name, widget.day, widget.courseName, attended);
     //   });
     // } else if (recognizeState is ErrorState && detectState is SuccessState) {
-    //   // message = ' ${recognizeState.errorMessage}';
+    //   String message = ' ${recognizeState.errorMessage}';
+    //   Fluttertoast.showToast(msg: message);
     // } else if (detectState is ErrorState) {
-    //   // message = detectState.errorMessage;
+    //   String msg = detectState.errorMessage;
+    //   Fluttertoast.showToast(msg: msg);
     //   // 'No face Detected';
     // }
 
     return Scaffold(
+      appBar: AppBar(
+        actions: [
+          add(context, _formKey, attendanceController, attended, widget.day,
+              widget.courseName),
+        ],
+      ),
       body: Column(
         // mainAxisAlignment: MainAxisAlignment.center,
+
         children: [
           (attendanceState is AttendanceSuccessState)
-              ? listOfAttendedStudents(attendanceState.data)
-              : listOfAttendedStudents(attended),
+              ? listOfAttendedStudents(attendanceState.data,
+                  attendanceController, attended, widget.day, widget.courseName)
+              : listOfAttendedStudents(attended, attendanceController, attended,
+                  widget.day, widget.courseName),
           Align(
             alignment: Alignment.center,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: ElevatedButton(
                 onPressed: () {
-                  goToLiveFeedScreen(context, detectController,
-                      'Total Students', attended, widget.day, family);
+                  goToLiveFeedScreen(
+                      context,
+                      detectController,
+                      'Total Students',
+                      attended,
+                      widget.day,
+                      family,
+                      recognizeController);
                 },
                 child: const Text('Attend'),
               ),
@@ -177,25 +161,27 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     );
   }
 
-  // Future<void> callAttendNotifier(
-  //     String name, var attendanceController, List<dynamic>? attended) async {
-  //   // String name = recognizeState.name;
-  //   await attendanceController.attendedList(
-  //       name, widget.day, widget.courseName, attended);
-  // }
-
-  Widget listOfAttendedStudents(List<dynamic>? attendedList) {
+  Widget listOfAttendedStudents(
+    List<dynamic>? attendedList,
+    AttendanceNotifier attendanceController,
+    List<dynamic>? attended,
+    String day,
+    String courseName,
+  ) {
     return Expanded(
       child: ListView.builder(
         itemCount: attendedList?.length,
         itemBuilder: (context, index) {
+          String name = attendedList![index];
           print('The attended students are $attendedList');
           return GestureDetector(
-            onTap: () {
-              // navigateToDay(context, listOfDays[index], attendanceSheetMap);
+            onLongPress: () {
+              showDeleteOption(context, name, attendanceController, attended,
+                  day, courseName);
             },
             child: ListTile(
-              title: Text(attendedList![index]),
+              // title: Text(attendedList![index]),
+              title: Text(name),
             ),
           );
         },
@@ -203,8 +189,15 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     );
   }
 
-  Future<void> goToLiveFeedScreen(context, detectController, fileName,
-      List<dynamic>? attended, String day, String family) async {
+  Future<void> goToLiveFeedScreen(
+    context,
+    FaceDetectionNotifier detectController,
+    fileName,
+    List<dynamic>? attended,
+    String day,
+    String family,
+    RecognizeFaceNotifier recognizeController,
+  ) async {
     List<CameraDescription> cameras = await availableCameras();
 
     Navigator.push(
@@ -219,19 +212,15 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
           interpreter: widget.interpreter,
           studentFile: fileName,
           family: family,
-          // day: day,
-          // attended: attended,
+          nameOfScreen: 'Course',
+          day: day,
+          attended: attended,
+          coursename: widget.courseName,
           // livenessInterpreter: livenessInterpreter,
         ),
       ),
     );
   }
-
-  // List<dynamic>? mapToList(dynamic attendedStudents, String day) {
-  //   if (attendedStudents.keys.contains(day)) {
-  //     return attendedStudents[day];
-  //   }
-  // }
 
   List<dynamic>? mapToList(
       Map<String, List<dynamic>>? attendanceSheetMap, String day) {
@@ -251,5 +240,109 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
       rethrow;
     }
     return studentList;
+  }
+
+  Widget add(
+      BuildContext context,
+      GlobalKey<FormState> formKey,
+      AttendanceNotifier attendanceController,
+      List<dynamic>? attended,
+      String day,
+      String courseName) {
+    return IconButton(
+      icon: const Icon(Icons.add),
+      onPressed: () {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            TextEditingController nameController = TextEditingController();
+
+            return AlertDialog(
+              title: const Text('Add a Student'),
+              contentPadding:
+                  const EdgeInsets.all(24), // Adjust padding for bigger size
+              content: Form(
+                key: formKey,
+                // mainAxisSize: MainAxisSize.min,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        hintText: 'Enter name of student',
+                      ),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Please enter a name to add';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () {
+                    if (formKey.currentState!.validate()) {
+                      // Validation passed, proceed with saving
+
+                      // Perform save operation or any other logic here
+                      attendanceController.manualAttend(attended,
+                          nameController.text.trim(), courseName, day);
+
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  child: const Text('Save'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void showDeleteOption(
+      BuildContext context,
+      String name,
+      AttendanceNotifier attendanceController,
+      List<dynamic>? attended,
+      String day,
+      String courseNam) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Delete $name?'),
+          content: Text('Are you sure you want to delete $name?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Delete'),
+              onPressed: () {
+                // Perform delete operation here
+                attendanceController.deleteName(
+                    attended, name, widget.courseName, day);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }

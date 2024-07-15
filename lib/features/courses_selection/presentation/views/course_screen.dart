@@ -58,11 +58,11 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
 
   Future<void> fetchInitialData() async {
     final attendance = await getAttendanceMap(widget.courseName);
-    final students = await getAllStudentsMap(constant.allStudent);
+    // final students = await getAllStudentsMap(constant.allStudent);
 
     setState(() {
       attendanceSheetMap = attendance;
-      mapOfStudents = students;
+      // mapOfStudents = students;
     });
     print('The attendance map is $attendanceSheetMap');
   }
@@ -179,17 +179,17 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
     );
   }
 
-  Future<Map<String, List<dynamic>>> getAllStudentsMap(
-      String nameOfJsonFile) async {
-    final prefs = await SharedPreferences.getInstance();
-    final jsonMap = prefs.getString(nameOfJsonFile);
-    if (jsonMap != null) {
-      final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
-      return decodedMap;
-    } else {
-      return {};
-    }
-  }
+  // Future<Map<String, List<dynamic>>> getAllStudentsMap(
+  //     String nameOfJsonFile) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final jsonMap = prefs.getString(nameOfJsonFile);
+  //   if (jsonMap != null) {
+  //     final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
+  //     return decodedMap;
+  //   } else {
+  //     return {};
+  //   }
+  // }
 
   Future<Map<String, List<dynamic>>> getAttendanceMap(
     String nameOfJsonFile,

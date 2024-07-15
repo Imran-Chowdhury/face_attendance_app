@@ -46,9 +46,9 @@ class RecognizeFaceRepositoryImpl implements RecognizeFaceRepository {
     List output = List.filled(1 * outputShapeLength, null, growable: false)
         .reshape([1, outputShapeLength]);
 
-    interpreter.run(input, output);
+    // interpreter.run(input, output);
 
-    // await isolateInterpreter.run(input, output);
+    await isolateInterpreter.run(input, output);
 
     output = output.reshape([outputShapeLength]);
     var finalOutput = List.from(output);

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/base_state/course_state.dart';
@@ -12,7 +13,7 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
   AttendanceNotifier() : super(const AttendanceInitialState());
 
   Future<void> attendedList(
-    String name,
+    String? name,
     String day,
     String courseName,
     List<dynamic>? attended,
@@ -20,7 +21,7 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
     print('The attended name is $name');
     try {
       state = const AttendanceLoadingState();
-      if (!attended!.contains(name)) {
+      if (name != null && !attended!.contains(name)) {
         attended.add(name);
         print('the attended students are $attended');
         state = AttendanceSuccessState(data: attended);
@@ -33,6 +34,55 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
       } else {
         state = AttendanceSuccessState(data: attended);
       }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> manualAttend(List<dynamic>? attended, String name,
+      String courseName, String day) async {
+    try {
+      state = const AttendanceLoadingState();
+
+      Map<String, List<dynamic>> studentMap =
+          await getAllStudentsMap('Total Students');
+
+      if (!attended!.contains(name) && studentMap.containsKey(name)) {
+        attended.add(name);
+        print('the attended students are $attended');
+
+        state = AttendanceSuccessState(data: attended);
+        //save the person in the main attendance sheet fro the particular day
+        await saveOrUpdateJsonInSharedPreferences(
+          attended,
+          day,
+          courseName,
+        );
+      } else if (!studentMap.containsKey(name)) {
+        Fluttertoast.showToast(msg: '$name is not found');
+      } else if (attended!.contains(name)) {
+        Fluttertoast.showToast(msg: '$name is already present');
+      } else {
+        state = AttendanceSuccessState(data: attended);
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<void> deleteName(List<dynamic>? attended, String name,
+      String courseName, String day) async {
+    // Implement your delete logic here, such as removing the name from the list
+    try {
+      state = const AttendanceLoadingState();
+      attended!.remove(name);
+      state = AttendanceSuccessState(data: attended);
+
+      await saveOrUpdateJsonInSharedPreferences(
+        attended,
+        day,
+        courseName,
+      );
     } catch (e) {
       rethrow;
     }
@@ -76,5 +126,17 @@ Future<void> saveOrUpdateJsonInSharedPreferences(
     // dynamic printMap = await readMapFromSharedPreferencesFromTrainDataSource(nameOfJsonFile);
     // print('The name of the file is $nameOfJsonFile');
     // print(printMap);
+  }
+}
+
+Future<Map<String, List<dynamic>>> getAllStudentsMap(
+    String nameOfJsonFile) async {
+  final prefs = await SharedPreferences.getInstance();
+  final jsonMap = prefs.getString(nameOfJsonFile);
+  if (jsonMap != null) {
+    final decodedMap = Map<String, List<dynamic>>.from(json.decode(jsonMap));
+    return decodedMap;
+  } else {
+    return {};
   }
 }

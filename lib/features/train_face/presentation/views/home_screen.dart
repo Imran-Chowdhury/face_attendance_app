@@ -342,17 +342,18 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             }
                           },
                         ),
-                        CustomButton(
-                          buttonName: 'Live',
-                          icon: const Icon(
-                            Icons.videocam,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            goToLiveFeedScreen(
-                                context, detectController, fileName);
-                          },
-                        ),
+                        /////////////////////////////////////////////////////////
+                        // CustomButton(
+                        //   buttonName: 'Live',
+                        //   icon: const Icon(
+                        //     Icons.videocam,
+                        //     color: Colors.white,
+                        //   ),
+                        //   onPressed: () {
+                        //     goToLiveFeedScreen(
+                        //         context, detectController, fileName);
+                        //   },
+                        // ),
                         CustomButton(
                           buttonName: 'Capture',
                           icon:
@@ -722,27 +723,28 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }
     });
   }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Future<void> goToLiveFeedScreen(context, detectController, fileName) async {
+  //   List<CameraDescription> cameras = await availableCameras();
 
-  Future<void> goToLiveFeedScreen(context, detectController, fileName) async {
-    List<CameraDescription> cameras = await availableCameras();
+  //   Navigator.push(
+  //     context,
+  //     // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+  //     MaterialPageRoute(
+  //       builder: (context) => LiveFeedScreen(
+  //         isolateInterpreter: widget.isolateInterpreter,
+  //         // detectionController: detectController,
+  //         faceDetector: widget.faceDetector,
+  //         cameras: cameras,
+  //         interpreter: widget.interpreter,
+  //         studentFile: fileName,
+  //         family: 'family',
+  //         // family: 'Test',
+  //         nameOfScreen: 'Home',
 
-    Navigator.push(
-      context,
-      // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-      MaterialPageRoute(
-        builder: (context) => LiveFeedScreen(
-          isolateInterpreter: widget.isolateInterpreter,
-          // detectionController: detectController,
-          faceDetector: widget.faceDetector,
-          cameras: cameras,
-          interpreter: widget.interpreter,
-          studentFile: fileName,
-          family: 'family',
-          // family: 'Test',
-
-          // livenessInterpreter: livenessInterpreter,
-        ),
-      ),
-    );
-  }
+  //         // livenessInterpreter: livenessInterpreter,
+  //       ),
+  //     ),
+  //   );
+  // }
 }
