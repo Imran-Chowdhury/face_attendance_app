@@ -90,86 +90,194 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
     Constants constant = Constants();
 
     return Scaffold(
-      backgroundColor: const Color(0xFF3a3b45),
+      backgroundColor: Color(0xFF3a3b45),
       body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          const Padding(
+            padding: EdgeInsets.only(top: 50, bottom: 50),
+            child: Text(
+              'Courses',
+              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+            ),
+          ),
+          // const SizedBox(
+          //   height: 50,
+          // ),
           Center(
-            child: CourseButton(
-              // courseName: 'Course 1',
-              courseName: 'Home Screen',
-              goToCourse: () {
-                Navigator.push(
-                  context,
-                  // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(
-                      interpreter: interpreter,
-                      faceDetector: faceDetector,
-                      isolateInterpreter: isolateInterpreter,
-                      cameras: cameras,
+            child: Row(
+              children: [
+                const SizedBox(
+                  width: 25,
+                ),
+                Column(
+                  children: [
+                    // courseTile('Course 1', 'MAAM'),
+                    CourseButton(
+                      courseName: constant.course_1,
+                      courseTeacher: 'MAAM',
+                      goToCourse: () {
+                        navigateToCourses(
+                            context,
+                            constant.course_1,
+                            isolateInterpreter,
+                            faceDetector,
+                            cameras,
+                            interpreter);
+                      },
                     ),
-                  ),
-                );
-              },
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    // courseTile('Course 4', 'MSA'),
+                    CourseButton(
+                      // courseName: 'Course 1',
+
+                      courseName: constant.course_2,
+                      courseTeacher: 'MFK',
+                      goToCourse: () {
+                        //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
+                        // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
+                        navigateToCourses(
+                            context,
+                            constant.course_1,
+                            isolateInterpreter,
+                            faceDetector,
+                            cameras,
+                            interpreter);
+                      },
+                    ),
+                  ],
+                ),
+                // const Padding(padding: EdgeInsets.only(right: 1)),
+                const SizedBox(
+                  width: 10.0,
+                ),
+                Column(
+                  children: [
+                    const SizedBox(
+                      height: 70,
+                    ),
+                    CourseButton(
+                        // courseName: 'Course 3',
+                        courseName: constant.course_3,
+                        courseTeacher: 'MSA',
+                        goToCourse: () {
+                          navigateToCourses(
+                              context,
+                              constant.course_3,
+                              isolateInterpreter,
+                              faceDetector,
+                              cameras,
+                              interpreter);
+                        }),
+                    // courseTile('Course 3', 'MFK'),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                    CourseButton(
+                      // courseName: 'Course 4',
+                      courseName: constant.course_4,
+                      courseTeacher: 'JUA',
+                      goToCourse: () {
+                        navigateToCourses(
+                            context,
+                            constant.course_4,
+                            isolateInterpreter,
+                            faceDetector,
+                            cameras,
+                            interpreter);
+                      },
+                    ),
+                    // courseTile('Course 4', 'JUA'),
+                  ],
+                ),
+              ],
             ),
-          ),
-          Center(
-            child: CourseButton(
-              // courseName: 'Course 1',
-              courseName: constant.course_1,
-              goToCourse: () {
-                //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
-                // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
-                navigateToCourses(context, constant.course_1,
-                    isolateInterpreter, faceDetector, cameras, interpreter);
-              },
-            ),
-          ),
-          Center(
-            child: CourseButton(
-                // courseName: 'Course 2',
-                courseName: constant.course_2,
-                goToCourse: () {
-                  navigateToCourses(context, constant.course_2,
-                      isolateInterpreter, faceDetector, cameras, interpreter);
-                }),
-          ),
-          Center(
-            child: CourseButton(
-                // courseName: 'Course 3',
-                courseName: constant.course_3,
-                goToCourse: () {
-                  navigateToCourses(context, constant.course_3,
-                      isolateInterpreter, faceDetector, cameras, interpreter);
-                }),
-          ),
-          Center(
-            child: CourseButton(
-              // courseName: 'Course 4',
-              courseName: constant.course_4,
-              goToCourse: () {
-                navigateToCourses(context, constant.course_4,
-                    isolateInterpreter, faceDetector, cameras, interpreter);
-              },
-            ),
-          ),
-          ElevatedButton(
-              onPressed: initializeJsonFiles,
-              child: const Text('Create files')),
-          const SizedBox(
-            height: 10.0,
-          ),
-          ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
-          const SizedBox(
-            height: 10.0,
-          ),
-          // ElevatedButton(
-          //     onPressed: clearAllPrefs, child: const Text('Delete files')),
-          ElevatedButton(
-              onPressed: deleteAllJsonFiles, child: const Text('Delete files')),
+          )
         ],
       ),
+
+      // body: Column(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   children: [
+
+      //     Center(
+      //       child: CourseButton(
+      //         // courseName: 'Course 1',
+      //         courseName: 'Home Screen',
+      //         goToCourse: () {
+      //           Navigator.push(
+      //             context,
+      //             // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+      //             MaterialPageRoute(
+      //               builder: (context) => HomeScreen(
+      //                 interpreter: interpreter,
+      //                 faceDetector: faceDetector,
+      //                 isolateInterpreter: isolateInterpreter,
+      //                 cameras: cameras,
+      //               ),
+      //             ),
+      //           );
+      //         },
+      //       ),
+      //     ),
+      //     Center(
+      //       child: CourseButton(
+      //         // courseName: 'Course 1',
+      //         courseName: constant.course_1,
+      //         goToCourse: () {
+      //           //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
+      //           // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
+      //           navigateToCourses(context, constant.course_1,
+      //               isolateInterpreter, faceDetector, cameras, interpreter);
+      //         },
+      //       ),
+      //     ),
+      //     Center(
+      //       child: CourseButton(
+      //           // courseName: 'Course 2',
+      //           courseName: constant.course_2,
+      //           goToCourse: () {
+      //             navigateToCourses(context, constant.course_2,
+      //                 isolateInterpreter, faceDetector, cameras, interpreter);
+      //           }),
+      //     ),
+      //     Center(
+      //       child: CourseButton(
+      //           // courseName: 'Course 3',
+      //           courseName: constant.course_3,
+      //           goToCourse: () {
+      //             navigateToCourses(context, constant.course_3,
+      //                 isolateInterpreter, faceDetector, cameras, interpreter);
+      //           }),
+      //     ),
+      //     Center(
+      // child: CourseButton(
+      //   // courseName: 'Course 4',
+      //   courseName: constant.course_4,
+      //   goToCourse: () {
+      //     navigateToCourses(context, constant.course_4,
+      //         isolateInterpreter, faceDetector, cameras, interpreter);
+      //   },
+      // ),
+      //     ),
+      //     ElevatedButton(
+      //         onPressed: initializeJsonFiles,
+      //         child: const Text('Create files')),
+      //     const SizedBox(
+      //       height: 10.0,
+      //     ),
+      //     ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
+      //     const SizedBox(
+      //       height: 10.0,
+      //     ),
+      //     // ElevatedButton(
+      //     //     onPressed: clearAllPrefs, child: const Text('Delete files')),
+      //     ElevatedButton(
+      //         onPressed: deleteAllJsonFiles, child: const Text('Delete files')),
+      //   ],
+      // ),
     );
   }
 
