@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 import 'package:face_attendance_app/features/train_face/presentation/views/home_screen.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import 'package:camera/camera.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_screen.dart';
@@ -12,6 +14,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
 import '../../../../core/constants/constants.dart';
+import '../../../../core/utils/background_widget.dart';
 import '../../../../core/utils/courseButton.dart';
 
 class CourseSelectionScreen extends ConsumerStatefulWidget {
@@ -87,197 +90,194 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
   Widget build(BuildContext context) {
     // 4. use ref.watch() to get the value of the provider
     // final helloWorld = ref.watch(helloWorldProvider);
-    Constants constant = Constants();
+    // Constants constant = Constants();
 
     return Scaffold(
-      backgroundColor: Color(0xFF3a3b45),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          const Padding(
-            padding: EdgeInsets.only(top: 50, bottom: 50),
-            child: Text(
-              'Courses',
-              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
-          ),
-          // const SizedBox(
-          //   height: 50,
-          // ),
-          Center(
-            child: Row(
-              children: [
-                const SizedBox(
-                  width: 25,
-                ),
-                Column(
-                  children: [
-                    // courseTile('Course 1', 'MAAM'),
-                    CourseButton(
-                      courseName: constant.course_1,
-                      courseTeacher: 'MAAM',
-                      goToCourse: () {
-                        navigateToCourses(
-                            context,
-                            constant.course_1,
-                            isolateInterpreter,
-                            faceDetector,
-                            cameras,
-                            interpreter);
-                      },
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    // courseTile('Course 4', 'MSA'),
-                    CourseButton(
-                      // courseName: 'Course 1',
+      // backgroundColor: Color(0xFF3a3b45),
+      body: Stack(children: [
+        // Background color with transparency
+        const BackgroudContainer(),
+        // Blur effect
+        // BackdropFilter(
+        //   filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
+        //   child: Container(
+        //     color: const Color.fromARGB(255, 205, 73, 73)
+        //         .withOpacity(0), // Needed to apply the blur
+        //   ),
+        // ),
+        // Main content
 
-                      courseName: constant.course_2,
-                      courseTeacher: 'MFK',
-                      goToCourse: () {
-                        //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
-                        // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
-                        navigateToCourses(
-                            context,
-                            constant.course_1,
-                            isolateInterpreter,
-                            faceDetector,
-                            cameras,
-                            interpreter);
-                      },
-                    ),
-                  ],
-                ),
-                // const Padding(padding: EdgeInsets.only(right: 1)),
-                const SizedBox(
-                  width: 10.0,
-                ),
-                Column(
-                  children: [
-                    const SizedBox(
-                      height: 70,
-                    ),
-                    CourseButton(
-                        // courseName: 'Course 3',
-                        courseName: constant.course_3,
-                        courseTeacher: 'MSA',
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Padding(
+              padding: EdgeInsets.only(top: 50, bottom: 50),
+              child: Text(
+                'Courses',
+                style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
+              ),
+            ),
+            // const SizedBox(
+            //   height: 50,
+            // ),
+            Center(
+              child: Row(
+                children: [
+                  const SizedBox(
+                    width: 25,
+                  ),
+                  Column(
+                    children: [
+                      // courseTile('Course 1', 'MAAM'),
+                      CourseButton(
+                        courseName: Constants.course_1,
+                        courseTeacher: 'MAAM',
                         goToCourse: () {
                           navigateToCourses(
                               context,
-                              constant.course_3,
+                              // Constants.course_1,
+                              // constant.course_1,
+                              'Course 1',
                               isolateInterpreter,
                               faceDetector,
                               cameras,
                               interpreter);
-                        }),
-                    // courseTile('Course 3', 'MFK'),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    CourseButton(
-                      // courseName: 'Course 4',
-                      courseName: constant.course_4,
-                      courseTeacher: 'JUA',
-                      goToCourse: () {
-                        navigateToCourses(
-                            context,
-                            constant.course_4,
-                            isolateInterpreter,
-                            faceDetector,
-                            cameras,
-                            interpreter);
-                      },
-                    ),
-                    // courseTile('Course 4', 'JUA'),
-                  ],
-                ),
-              ],
+                        },
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      // courseTile('Course 4', 'MSA'),
+                      CourseButton(
+                        // courseName: 'Course 1',
+
+                        courseName: Constants.course_2,
+                        courseTeacher: 'MFK',
+                        goToCourse: () {
+                          //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
+                          // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
+                          navigateToCourses(
+                              context,
+                              // Constants.course_2,
+                              // constant.course_1,
+                              'Course 2',
+                              isolateInterpreter,
+                              faceDetector,
+                              cameras,
+                              interpreter);
+                        },
+                      ),
+                    ],
+                  ),
+                  // const Padding(padding: EdgeInsets.only(right: 1)),
+                  const SizedBox(
+                    width: 10.0,
+                  ),
+                  Column(
+                    children: [
+                      const SizedBox(
+                        height: 70,
+                      ),
+                      CourseButton(
+                          // courseName: 'Course 3',
+                          courseName: Constants.course_3,
+                          courseTeacher: 'MSA',
+                          goToCourse: () {
+                            navigateToCourses(
+                                context,
+                                'Course 3',
+                                // Constants.course_3,
+                                // constant.course_3,
+                                isolateInterpreter,
+                                faceDetector,
+                                cameras,
+                                interpreter);
+                          }),
+                      // courseTile('Course 3', 'MFK'),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      CourseButton(
+                        // courseName: 'Course 4',
+                        courseName: Constants.course_4,
+                        courseTeacher: 'JUA',
+                        goToCourse: () {
+                          navigateToCourses(
+                              context,
+                              // Constants.course_4,
+                              // constant.course_4,
+                              'Course 4',
+                              isolateInterpreter,
+                              faceDetector,
+                              cameras,
+                              interpreter);
+                        },
+                      ),
+                      // courseTile('Course 4', 'JUA'),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          )
-        ],
-      ),
 
-      // body: Column(
-      //   mainAxisAlignment: MainAxisAlignment.center,
-      //   children: [
-
-      //     Center(
-      //       child: CourseButton(
-      //         // courseName: 'Course 1',
-      //         courseName: 'Home Screen',
-      //         goToCourse: () {
-      //           Navigator.push(
-      //             context,
-      //             // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
-      //             MaterialPageRoute(
-      //               builder: (context) => HomeScreen(
-      //                 interpreter: interpreter,
-      //                 faceDetector: faceDetector,
-      //                 isolateInterpreter: isolateInterpreter,
-      //                 cameras: cameras,
-      //               ),
-      //             ),
-      //           );
-      //         },
-      //       ),
-      //     ),
-      //     Center(
-      //       child: CourseButton(
-      //         // courseName: 'Course 1',
-      //         courseName: constant.course_1,
-      //         goToCourse: () {
-      //           //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
-      //           // FaceDetector faceDetector,List<CameraDescription> cameras, tf_lite.Interpreter interpreter)
-      //           navigateToCourses(context, constant.course_1,
-      //               isolateInterpreter, faceDetector, cameras, interpreter);
-      //         },
-      //       ),
-      //     ),
-      //     Center(
-      //       child: CourseButton(
-      //           // courseName: 'Course 2',
-      //           courseName: constant.course_2,
-      //           goToCourse: () {
-      //             navigateToCourses(context, constant.course_2,
-      //                 isolateInterpreter, faceDetector, cameras, interpreter);
-      //           }),
-      //     ),
-      //     Center(
-      //       child: CourseButton(
-      //           // courseName: 'Course 3',
-      //           courseName: constant.course_3,
-      //           goToCourse: () {
-      //             navigateToCourses(context, constant.course_3,
-      //                 isolateInterpreter, faceDetector, cameras, interpreter);
-      //           }),
-      //     ),
-      //     Center(
-      // child: CourseButton(
-      //   // courseName: 'Course 4',
-      //   courseName: constant.course_4,
-      //   goToCourse: () {
-      //     navigateToCourses(context, constant.course_4,
-      //         isolateInterpreter, faceDetector, cameras, interpreter);
-      //   },
-      // ),
-      //     ),
-      //     ElevatedButton(
-      //         onPressed: initializeJsonFiles,
-      //         child: const Text('Create files')),
-      //     const SizedBox(
-      //       height: 10.0,
-      //     ),
-      //     ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
-      //     const SizedBox(
-      //       height: 10.0,
-      //     ),
-      //     // ElevatedButton(
-      //     //     onPressed: clearAllPrefs, child: const Text('Delete files')),
-      //     ElevatedButton(
-      //         onPressed: deleteAllJsonFiles, child: const Text('Delete files')),
-      //   ],
-      // ),
+            SizedBox(
+              height: 100,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                // crossAxisAlignment: CrossAxisAlignment.baseline,
+                children: [
+                  const Text(
+                    "Didn't register?",
+                    style: TextStyle(
+                      color: Colors.white38,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          // MaterialPageRoute(builder: (context) => LiveFeedScreen()),
+                          MaterialPageRoute(
+                            builder: (context) => HomeScreen(
+                              interpreter: interpreter,
+                              faceDetector: faceDetector,
+                              isolateInterpreter: isolateInterpreter,
+                              cameras: cameras,
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Register here",
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // ElevatedButton(
+            //     onPressed: initializeJsonFiles,
+            //     child: const Text('Create files')),
+            // const SizedBox(
+            //   height: 10.0,
+            // ),
+            // ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
+            // const SizedBox(
+            //   height: 10.0,
+            // ),
+            // // ElevatedButton(
+            // //     onPressed: clearAllPrefs, child: const Text('Delete files')),
+            // ElevatedButton(
+            //     onPressed: deleteAllJsonFiles, child: const Text('Delete files')),
+          ],
+        ),
+      ]),
     );
   }
 

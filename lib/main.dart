@@ -1,4 +1,5 @@
 // import 'package:face/features/train_face/presentation/views/home_screen.dart';
+import 'package:face_attendance_app/core/constants/constants.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_selection_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -32,11 +33,20 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3a3b45)),
-        useMaterial3: true,
+        scaffoldBackgroundColor: ColorConst.backgroundColor,
+        // colorScheme:
+        //     ColorScheme.fromSeed(seedColor: ColorConst.backgroundColor),
+        // useMaterial3: true,
       ),
+      // theme: ThemeData( scaffoldBackgroundColor: Colors.lightGreenAccent,),
       // home: SafeArea(child: HomeScreen()),
       home: SafeArea(child: CourseSelectionScreen()),
+      // builder: (context, child) {
+      //   return SafeArea(
+      //     child: child!,
+      //   );
+      // },
+      // home: CourseSelectionScreen(),
     );
   }
 }

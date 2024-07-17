@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:camera/camera.dart';
 import 'package:face_attendance_app/core/base_state/course_screen_state.dart';
+import 'package:face_attendance_app/core/utils/background_widget.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/riverpod/course_screen_riverpod.dart';
 
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_day.dart';
@@ -10,11 +11,12 @@ import 'package:flutter/material.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_ml_kit/google_ml_kit.dart';
+import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import '../../../../core/constants/constants.dart';
-import '../../../face_detection/presentation/riverpod/face_detection_provider.dart';
 
+// ignore: must_be_immutable
 class CourseScreen extends ConsumerStatefulWidget {
   CourseScreen({
     super.key,
@@ -78,21 +80,47 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
       listOfDays = courseScreenState.data;
     }
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF3a3b45),
-      body: listOfDays!.isEmpty
-          ? const Center(
-              child: Text('Start Class'),
-            )
-          : (courseScreenState is CourseScreeenSuccessState)
-              ? ListofDates(courseScreenState.data)
-              : ListofDates(listOfDays),
-      floatingActionButton:
-          add(context, courseScreenNotifier, listOfDays, attendanceSheetMap),
+    return SafeArea(
+      child: Scaffold(
+        floatingActionButton:
+            add(context, courseScreenNotifier, listOfDays, attendanceSheetMap),
+        // backgroundColor: const Color(0xFF3a3b45),
+        body: Stack(
+          children: [
+            const BackgroudContainer(),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20.0, 40.0, 20.0, 20.0),
+                  child: Center(
+                    child: Text(
+                      widget.courseName,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: listOfDays!.isEmpty
+                      ? const Center(
+                          child: Text('Start Class'),
+                        )
+                      : (courseScreenState is CourseScreeenSuccessState)
+                          ? listofDates(courseScreenState.data)
+                          : listofDates(listOfDays),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  Widget ListofDates(List<dynamic>? listOfDays) {
+  Widget listofDates(List<dynamic>? listOfDays) {
     return ListView.builder(
       itemCount: listOfDays?.length,
       itemBuilder: (context, index) {
@@ -110,9 +138,42 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
               widget.interpreter,
             );
           },
-          child: ListTile(
-            title: Text(listOfDays![index]),
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Container(
+              height: 60,
+              width: 200,
+              decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                  gradient: LinearGradient(colors: [
+                    ColorConst.lightButtonColor,
+                    ColorConst.darkButtonColor
+                  ])),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      listOfDays![index],
+                      style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
+
+          // child: ListTile(
+          //   title: Text(listOfDays![index]),
+          // ),
         );
       },
     );
@@ -120,19 +181,28 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
 
   Widget add(BuildContext context, CourseScreenNotifier courseScreenNotifier,
       List<dynamic>? listOfDays, Map<String, List<dynamic>>? attendanceMap) {
-    return FloatingActionButton(onPressed: () async {
-      DateTime? pickedDate = await showDatePicker(
-        context: context,
-        initialDate: DateTime.now(),
-        firstDate: DateTime(2000),
-        lastDate: DateTime(2100),
-      );
+    return Padding(
+      padding: const EdgeInsets.only(right: 30, bottom: 50),
+      child: FloatingActionButton(
+          backgroundColor: Colors.white,
+          shape: const CircleBorder(),
+          onPressed: () async {
+            DateTime? pickedDate = await showDatePicker(
+              context: context,
+              initialDate: DateTime.now(),
+              firstDate: DateTime(2000),
+              lastDate: DateTime(2100),
+            );
 
-      if (pickedDate != null) {
-        courseScreenNotifier.dayList(widget.courseName, pickedDate.toString(),
-            listOfDays, attendanceMap);
-      }
-    });
+            if (pickedDate != null) {
+              String? formattedDate =
+                  DateFormat('dd-MM-yyyy').format(pickedDate);
+              courseScreenNotifier.dayList(widget.courseName,
+                  formattedDate.toString(), listOfDays, attendanceMap);
+            }
+          },
+          child: const Icon(Icons.add)),
+    );
   }
 
   List<dynamic>? mapToList(Map<String, List<dynamic>>? attendanceSheetMap) {
