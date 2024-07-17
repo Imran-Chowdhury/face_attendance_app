@@ -1,21 +1,26 @@
-import 'dart:async';
+// import 'dart:async';
 
 import 'package:camera/camera.dart';
+import 'package:face_attendance_app/core/constants/constants.dart';
+import 'package:face_attendance_app/core/utils/background_widget.dart';
+import 'package:face_attendance_app/core/utils/customButton.dart';
+// import 'package:face_attendance_app/core/utils/customButton.dart';
 
 import 'package:face_attendance_app/features/live_feed/presentation/views/live_feed_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 
-import '../../../../core/base_state/base_state.dart';
+// import '../../../../core/base_state/base_state.dart';
 import '../../../../core/base_state/course_state.dart';
-import '../../../../core/constants/constants.dart';
+// import '../../../../core/constants/constants.dart';
 import '../../../face_detection/presentation/riverpod/face_detection_provider.dart';
 import '../../../recognize_face/presentation/riverpod/recognize_face_provider.dart';
 import '../riverpod/course_selection_riverpod.dart';
 
+// ignore: must_be_immutable
 class CourseDayScreen extends ConsumerStatefulWidget {
   @override
   ConsumerState<CourseDayScreen> createState() => _CourseDayScreenState();
@@ -54,21 +59,13 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Constants constant = Constants();
+    // Constants constant = Constants();
     String family = "${widget.courseName}- ${widget.day}";
     final detectController = ref.watch(faceDetectionProvider(family).notifier);
     final recognizeController =
         ref.watch(recognizefaceProvider(family).notifier);
 
-    final recognizeState = ref.watch(recognizefaceProvider(family));
-    final detectState = ref.watch(faceDetectionProvider(family));
     final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-    bool attendedListExecuted = false;
-
-    // String family = "${widget.courseName}- ${widget.day}";
-    // final detectController = ref.watch(faceDetectionProvider.notifier);
-    // final recognizeState = ref.watch(recognizefaceProvider);
-    // final detectState = ref.watch(faceDetectionProvider);
 
     var attendanceState = ref.watch(attendanceProvider(family));
     AttendanceNotifier attendanceController =
@@ -81,82 +78,69 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
       attended = attendanceState.data;
     }
 
-    // if (recognizeState is SuccessState && detectState is SuccessState) {
-    //   // Execute attendedList only once when both states are SuccessState
-    //   if (attendedListExecuted == false) {
-    //     Future(() {
-    //       String name = recognizeState.name;
-    //       attendanceController.attendedList(
-    //           name, widget.day, widget.courseName, attended);
-    //     });
-    //     // Set the flag to true
-    //     attendedListExecuted = true;
-    //   }
-    // } else {
-    //   attendedListExecuted =
-    //       false; // Reset the flag if states are not both SuccessState
-    // }
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: Center(
+              child: Text(
+            widget.courseName,
+            style: const TextStyle(
+                color: Colors.white, fontSize: 25, fontWeight: FontWeight.bold),
+          )),
+          iconTheme: const IconThemeData(color: Colors.white),
+          elevation: 20,
+          backgroundColor: const Color.fromARGB(255, 101, 123, 120),
+          // backgroundColor: ColorConst.backgroundColor,
+          actions: [
+            add(context, _formKey, attendanceController, attended, widget.day,
+                widget.courseName),
+          ],
+        ),
+        body: Stack(
+          children: [
+            const BackgroudContainer(),
+            Column(
+              // mainAxisAlignment: MainAxisAlignment.center,
 
-    // if (recognizeState is SuccessState && detectState is SuccessState) {
-    //   Future(() {
-    //     String name = recognizeState.name;
-    //     attendanceController.attendedList(
-    //         name, widget.day, widget.courseName, attended);
-    //   });
-    // }
-
-    // if (recognizeState is SuccessState && detectState is SuccessState) {
-    //   // message = 'Recognized: ${recognizeState.name}';
-    //   Future(() {
-    //     String name = recognizeState.name;
-    //     attendanceController.attendedList(
-    //         name, widget.day, widget.courseName, attended);
-    //   });
-    // } else if (recognizeState is ErrorState && detectState is SuccessState) {
-    //   String message = ' ${recognizeState.errorMessage}';
-    //   Fluttertoast.showToast(msg: message);
-    // } else if (detectState is ErrorState) {
-    //   String msg = detectState.errorMessage;
-    //   Fluttertoast.showToast(msg: msg);
-    //   // 'No face Detected';
-    // }
-
-    return Scaffold(
-      appBar: AppBar(
-        actions: [
-          add(context, _formKey, attendanceController, attended, widget.day,
-              widget.courseName),
-        ],
-      ),
-      body: Column(
-        // mainAxisAlignment: MainAxisAlignment.center,
-
-        children: [
-          (attendanceState is AttendanceSuccessState)
-              ? listOfAttendedStudents(attendanceState.data,
-                  attendanceController, attended, widget.day, widget.courseName)
-              : listOfAttendedStudents(attended, attendanceController, attended,
-                  widget.day, widget.courseName),
-          Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: ElevatedButton(
-                onPressed: () {
-                  goToLiveFeedScreen(
-                      context,
-                      detectController,
-                      'Total Students',
-                      attended,
-                      widget.day,
-                      family,
-                      recognizeController);
-                },
-                child: const Text('Attend'),
-              ),
+              children: [
+                const SizedBox(
+                  height: 20,
+                ),
+                Center(
+                  child: Text(
+                    'Date -${widget.day}',
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w500),
+                  ),
+                ),
+                (attendanceState is AttendanceSuccessState)
+                    ? listOfAttendedStudents(
+                        attendanceState.data,
+                        attendanceController,
+                        attended,
+                        widget.day,
+                        widget.courseName)
+                    : listOfAttendedStudents(attended, attendanceController,
+                        attended, widget.day, widget.courseName),
+                CustomButton(
+                    onPressed: () {
+                      goToLiveFeedScreen(
+                          context,
+                          detectController,
+                          'Total Students',
+                          attended,
+                          widget.day,
+                          family,
+                          recognizeController);
+                    },
+                    buttonName: 'Attend',
+                    icon: const Icon(Icons.add_a_photo))
+              ],
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -180,8 +164,28 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
                   day, courseName);
             },
             child: ListTile(
-              // title: Text(attendedList![index]),
-              title: Text(name),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              leading: Container(
+                padding: const EdgeInsets.only(right: 12.0),
+                decoration: const BoxDecoration(
+                    border: Border(
+                        right: BorderSide(width: 1.0, color: Colors.white24))),
+                child: const Icon(Icons.person_2_outlined, color: Colors.white),
+              ),
+              title: Text(
+                name,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              subtitle: const Row(
+                children: <Widget>[
+                  Icon(Icons.linear_scale, color: ColorConst.darkButtonColor),
+                  Text(" Present", style: TextStyle(color: Colors.white))
+                ],
+              ),
+              // trailing: const Icon(Icons.keyboard_arrow_right,
+              //     color: Colors.white, size: 30.0),
             ),
           );
         },
@@ -190,7 +194,7 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
   }
 
   Future<void> goToLiveFeedScreen(
-    context,
+    BuildContext context,
     FaceDetectionNotifier detectController,
     fileName,
     List<dynamic>? attended,
@@ -250,7 +254,10 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
       String day,
       String courseName) {
     return IconButton(
-      icon: const Icon(Icons.add),
+      icon: const Icon(
+        Icons.person_add,
+        color: Colors.white,
+      ),
       onPressed: () {
         showDialog(
           context: context,
@@ -346,3 +353,66 @@ class _CourseDayScreenState extends ConsumerState<CourseDayScreen> {
     );
   }
 }
+
+
+
+//  Align(
+//                   alignment: Alignment.center,
+//                   child: Padding(
+//                     padding: const EdgeInsets.all(16.0),
+//                     // child:
+//                     // CustomButton(
+//                     //   onPressed: () async {
+//                     //     await goToLiveFeedScreen(
+//                     //         context,
+//                     //         detectController,
+//                     //         'Total Students',
+//                     //         attended,
+//                     //         widget.day,
+//                     //         family,
+//                     //         recognizeController);
+//                     //   },
+//                     //   buttonName: 'Attend',
+//                     //   icon: const Icon(Icons.add_a_photo),
+//                     // ),
+//                     child: Container(
+//                       decoration: BoxDecoration(
+//                         gradient: const LinearGradient(
+//                           colors: [
+//                             // ColorConst.darkButtonColor,
+//                             // ColorConst.lightButtonColor
+//                             Colors.blue, Colors.purple,
+//                           ],
+//                           begin: Alignment.topLeft,
+//                           end: Alignment.bottomRight,
+//                         ),
+//                         borderRadius: BorderRadius.circular(20),
+//                       ),
+//                       child: ElevatedButton(
+//                         style: ElevatedButton.styleFrom(
+//                           backgroundColor: Colors
+//                               .transparent, // Remove default button background
+//                           shadowColor: Colors.transparent, // Remove shadow
+//                           shape: RoundedRectangleBorder(
+//                             borderRadius: BorderRadius.circular(20),
+//                           ),
+//                         ),
+//                         onPressed: () {
+//                           goToLiveFeedScreen(
+//                               context,
+//                               detectController,
+//                               'Total Students',
+//                               attended,
+//                               widget.day,
+//                               family,
+//                               recognizeController);
+//                         },
+//                         child: const Text(
+//                           'Attend',
+//                           style: TextStyle(color: Colors.white),
+//                         ),
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+

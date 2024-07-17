@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui';
+
 import 'package:face_attendance_app/features/train_face/presentation/views/home_screen.dart';
-import 'package:flutter/widgets.dart';
+
 import 'package:tflite_flutter/tflite_flutter.dart' as tf_lite;
 import 'package:camera/camera.dart';
 import 'package:face_attendance_app/features/courses_selection/presentation/views/course_screen.dart';
@@ -13,7 +13,6 @@ import 'package:google_ml_kit/google_ml_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tflite_flutter/tflite_flutter.dart';
 
-import '../../../../core/constants/constants.dart';
 import '../../../../core/utils/background_widget.dart';
 import '../../../../core/utils/courseButton.dart';
 
@@ -27,7 +26,6 @@ class CourseSelectionScreen extends ConsumerStatefulWidget {
 class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
   late FaceDetector faceDetector;
   late tf_lite.Interpreter interpreter;
-  // late tf_lite.Interpreter livenessInterpreter;
   late tf_lite.IsolateInterpreter isolateInterpreter;
   List<CameraDescription> cameras = [];
 
@@ -37,8 +35,8 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
     initialize();
   }
 
-  void initialize() {
-    loadModelsAndDetectors();
+  Future<void> initialize() async {
+    await loadModelsAndDetectors();
   }
 
   Future<void> loadModelsAndDetectors() async {
@@ -67,23 +65,48 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
     super.dispose();
   }
 
+//////////////////////////keep this///////////////
+
+  // Future<tf_lite.Interpreter> loadModel() async {
+  //   InterpreterOptions interpreterOptions = InterpreterOptions();
+  //   // var interpreterOptions = InterpreterOptions()..useNnApiForAndroid = true;
+
+  //   if (Platform.isAndroid) {
+  //     interpreterOptions.addDelegate(XNNPackDelegate(
+  //         options:
+  //             XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
+  //   }
+
+  //   if (Platform.isIOS) {
+  //     interpreterOptions.addDelegate(GpuDelegate());
+  //   }
+
+  //   return await tf_lite.Interpreter.fromAsset(
+  //     'assets/facenet_512.tflite',
+  //     options: interpreterOptions..threads = Platform.numberOfProcessors,
+  //   );
+  // }
+
   Future<tf_lite.Interpreter> loadModel() async {
-    InterpreterOptions interpreterOptions = InterpreterOptions();
+    // InterpreterOptions interpreterOptions = InterpreterOptions();
+    // var interpreterOptions = InterpreterOptions()..useNnApiForAndroid = true;// didnt work for me
 
-    if (Platform.isAndroid) {
-      interpreterOptions.addDelegate(XNNPackDelegate(
-          options:
-              XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-    }
+    // var interpreterOptions = InterpreterOptions()..threads = 2;
+    var interpreterOptions = InterpreterOptions()
+      ..addDelegate(GpuDelegateV2()); //good
 
-    if (Platform.isIOS) {
-      interpreterOptions.addDelegate(GpuDelegate());
-    }
+    // if (Platform.isAndroid) {
+    //   interpreterOptions.addDelegate(XNNPackDelegate(
+    //       options:
+    //           XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
+    // }
 
-    return await tf_lite.Interpreter.fromAsset(
-      'assets/facenet_512.tflite',
-      options: interpreterOptions..threads = Platform.numberOfProcessors,
-    );
+    // if (Platform.isIOS) {
+    //   interpreterOptions.addDelegate(GpuDelegate());
+    // }
+
+    return await tf_lite.Interpreter.fromAsset('assets/facenet_512.tflite',
+        options: interpreterOptions);
   }
 
   @override
@@ -97,14 +120,7 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
       body: Stack(children: [
         // Background color with transparency
         const BackgroudContainer(),
-        // Blur effect
-        // BackdropFilter(
-        //   filter: ImageFilter.blur(sigmaX: 100.0, sigmaY: 100.0),
-        //   child: Container(
-        //     color: const Color.fromARGB(255, 205, 73, 73)
-        //         .withOpacity(0), // Needed to apply the blur
-        //   ),
-        // ),
+
         // Main content
 
         Column(
@@ -133,7 +149,9 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                     children: [
                       // courseTile('Course 1', 'MAAM'),
                       CourseButton(
-                        courseName: Constants.course_1,
+                        // courseName: Constants.course_1,
+                        courseName: 'Course 1',
+
                         courseTeacher: 'MAAM',
                         goToCourse: () {
                           navigateToCourses(
@@ -152,9 +170,9 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                       ),
                       // courseTile('Course 4', 'MSA'),
                       CourseButton(
-                        // courseName: 'Course 1',
+                        courseName: 'Course 2',
 
-                        courseName: Constants.course_2,
+                        // courseName: Constants.course_2,
                         courseTeacher: 'MFK',
                         goToCourse: () {
                           //               (context, String courseName, tf_lite.IsolateInterpreter isolateInterpreter,
@@ -182,8 +200,8 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                         height: 70,
                       ),
                       CourseButton(
-                          // courseName: 'Course 3',
-                          courseName: Constants.course_3,
+                          courseName: 'Course 3',
+                          // courseName: Constants.course_3,
                           courseTeacher: 'MSA',
                           goToCourse: () {
                             navigateToCourses(
@@ -201,8 +219,8 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
                         height: 20,
                       ),
                       CourseButton(
-                        // courseName: 'Course 4',
-                        courseName: Constants.course_4,
+                        courseName: 'Course 4',
+                        // courseName: Constants.course_4,
                         courseTeacher: 'JUA',
                         goToCourse: () {
                           navigateToCourses(
@@ -267,14 +285,16 @@ class _CourseSelectionScreenState extends ConsumerState<CourseSelectionScreen> {
             // const SizedBox(
             //   height: 10.0,
             // ),
-            // ElevatedButton(onPressed: loadKeys, child: const Text('print files')),
+            // ElevatedButton(
+            //     onPressed: loadKeys, child: const Text('print files')),
             // const SizedBox(
             //   height: 10.0,
             // ),
-            // // ElevatedButton(
-            // //     onPressed: clearAllPrefs, child: const Text('Delete files')),
             // ElevatedButton(
-            //     onPressed: deleteAllJsonFiles, child: const Text('Delete files')),
+            //     onPressed: clearAllPrefs, child: const Text('Delete files')),
+            // ElevatedButton(
+            //     onPressed: deleteAllJsonFiles,
+            //     child: const Text('Delete files')),
           ],
         ),
       ]),

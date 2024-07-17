@@ -60,7 +60,7 @@ class AttendanceNotifier extends StateNotifier<AttendanceState> {
         );
       } else if (!studentMap.containsKey(name)) {
         Fluttertoast.showToast(msg: '$name is not found');
-      } else if (attended!.contains(name)) {
+      } else if (attended.contains(name)) {
         Fluttertoast.showToast(msg: '$name is already present');
       } else {
         state = AttendanceSuccessState(data: attended);

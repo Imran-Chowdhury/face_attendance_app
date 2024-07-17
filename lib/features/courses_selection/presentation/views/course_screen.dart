@@ -170,10 +170,6 @@ class _CourseScreenState extends ConsumerState<CourseScreen> {
               ),
             ),
           ),
-
-          // child: ListTile(
-          //   title: Text(listOfDays![index]),
-          // ),
         );
       },
     );

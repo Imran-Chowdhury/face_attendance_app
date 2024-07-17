@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:face_attendance_app/core/constants/constants.dart';
+import 'package:face_attendance_app/core/utils/background_widget.dart';
 import 'package:face_attendance_app/features/face_detection/presentation/riverpod/face_detection_provider.dart';
 import 'package:face_attendance_app/features/recognize_face/presentation/riverpod/recognize_face_provider.dart';
 import 'package:face_attendance_app/features/train_face/presentation/riverpod/train_face_provider.dart';
@@ -57,88 +58,11 @@ class HomeScreen extends ConsumerStatefulWidget {
 
 // 2. extend [ConsumerState]
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  // late FaceDetector faceDetector;
-  // late tf_lite.Interpreter interpreter;
-
-  // late tf_lite.IsolateInterpreter isolateInterpreter;
-  // List<CameraDescription> cameras = [];
-
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   initialize();
-  // }
-
-  // void initialize() {
-  //   loadModelsAndDetectors();
-  // }
-
-  // Future<void> loadModelsAndDetectors() async {
-  //   // Load models and initialize detectors
-  //   interpreter = await loadModel();
-  //   isolateInterpreter =
-  //       await IsolateInterpreter.create(address: interpreter.address);
-  //   // livenessInterpreter = await loadLivenessModel();
-  //   cameras = await availableCameras();
-
-  //   // Initialize face detector
-  //   final faceDetectorOptions = FaceDetectorOptions(
-  //     minFaceSize: 0.2,
-  //     performanceMode: FaceDetectorMode.accurate, // or .fast
-  //   );
-  //   faceDetector = FaceDetector(options: faceDetectorOptions);
-  // }
-
-  // @override
-  // void dispose() {
-  //   // Dispose resources
-
-  //   faceDetector.close();
-  //   interpreter.close();
-  //   isolateInterpreter.close();
-  //   super.dispose();
-  // }
-
-  // Future<tf_lite.Interpreter> loadModel() async {
-  //   InterpreterOptions interpreterOptions = InterpreterOptions();
-  //   // final processorNum =  Platform.numberOfProcessors;
-  //   // print('The number of processors are $processorNum');
-
-  //   if (Platform.isAndroid) {
-  //     interpreterOptions.addDelegate(XNNPackDelegate(
-  //         options:
-  //             XNNPackDelegateOptions(numThreads: Platform.numberOfProcessors)));
-  //   }
-
-  //   if (Platform.isIOS) {
-  //     interpreterOptions.addDelegate(GpuDelegate());
-  //   }
-
-  //   // GpuDelegateV2 gpuDelegateV2 = tf_lite.GpuDelegateV2(options: tf_lite.GpuDelegateOptionsV2());
-  //   // interpreterOptions.addDelegate(gpuDelegateV2);
-
-  //   // return await TfLiteModel.Interpreter.fromAsset('assets/facenet.tflite');
-  //   // return await TfLiteModel.Interpreter.fromAsset('assets/mobile_face_net.tflite');
-  //   // return await TfLiteModel.Interpreter.fromAsset('assets/FaceMobileNet_Float32.tflite');
-  //   return await tf_lite.Interpreter.fromAsset(
-  //     'assets/facenet_512.tflite',
-  //     options: interpreterOptions..threads = Platform.numberOfProcessors,
-  //   );
-  //   // return await TfLiteModel.Interpreter.fromAsset('assets/facenet(face_recognizer_android_repo).tflite');
-  //   // facenet(face_recognizer_android_repo).tflite
-  // }
-
-  // Future<tf_lite.Interpreter> loadLivenessModel() async {
-  //   // return await TfLiteModel.Interpreter.fromAsset('assets/FaceDeSpoofing.tflite');
-  //   return await tf_lite.Interpreter.fromAsset('assets/FaceAntiSpoofing.tflite');
-  //
-  //
-  // }
-
+  final _formKey = GlobalKey<FormState>();
   @override
   Widget build(BuildContext context) {
     late String personName;
-    final _formKey = GlobalKey<FormState>();
+
 ////////////////////////////////////////////////////////////////changes///////////////////////////////////////////////
     // final detectController = ref.watch(faceDetectionProvider.notifier);
     // final detectState = ref.watch(faceDetectionProvider);
@@ -152,13 +76,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
         ref.watch(faceDetectionProvider('family').notifier);
     final detectState = ref.watch(faceDetectionProvider('family'));
     final trainController = ref.watch(trainFaceProvider('family').notifier);
-    final trainState = ref.watch(trainFaceProvider('family'));
-    final recognizeController =
-        ref.watch(recognizefaceProvider('family').notifier);
+    // final trainState = ref.watch(trainFaceProvider('family'));
+    // final recognizeController =
+    //     ref.watch(recognizefaceProvider('family').notifier);
     final recognizeState = ref.watch(recognizefaceProvider('family'));
     final TextEditingController textFieldController = TextEditingController();
-
-    Constants constant = Constants();
 
     String fileName = 'Total Students';
     // constant.allStudent;
@@ -182,332 +104,272 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       },
       child: Scaffold(
         backgroundColor: const Color(0xFF3a3b45),
-        // appBar: AppBar(
-        //   backgroundColor:  const Color(0xFF0cdec1),
-        //   title: const Text('Face Recognition'),
-        // ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Center(
-              //   child: Text(
-              //       'File being used is $fileName',
-              //     style: const TextStyle(fontSize: 15.0),
-              //   ),
-              // ),const Center(
-              //   child: Text(
-              //     'quality high',
-              //     style: TextStyle(fontSize: 15.0),
-              //   ),
-              // ),
-              const Padding(
-                // padding: EdgeInsets.only(top: height*0.03,bottom: height*0.04),
-                padding: EdgeInsets.only(top: 50, bottom: 40),
-                // padding: EdgeInsets.only(top: (height*0.07)),
-                child: Center(
-                  child: Text(
-                    'Face-Recognizer',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-
-              // const SizedBox(height: 10.0,),
-              Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    Padding(
-                      // padding: EdgeInsets.only( left: width*0.04, right: width*0.04, bottom: 50),
-                      padding: const EdgeInsets.only(
-                          left: 10, right: 10, bottom: 50),
-                      child: TextFormField(
-                        controller: textFieldController,
-                        decoration: InputDecoration(
-                          hintText: 'Enter Name',
-                          // labelText: 'Name',
-                          // labelStyle: const TextStyle(
-                          //   color: Colors.black,
-                          //   fontSize: 20.0,
-                          // ),
-                          filled: true, // Fill the background of the text field
-                          fillColor:
-                              Colors.white, // Color inside the text field
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(80.0),
-                            borderSide: BorderSide.none, // Remove the border
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(80.0),
-                            borderSide: const BorderSide(
-                              color: Colors.black, // Default border color
-                              width: 2.0, // Default border thickness
-                            ),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(80.0),
-                            borderSide: const BorderSide(
-                              color: Color(0xFF0cdec1),
-                              // Gradient border when focused
-                              // gradient: LinearGradient(
-                              //   colors: [Color(0xFF0cdec1), Color(0xFF0ad8e6)],
-                              //   begin: Alignment.topLeft,
-                              //   end: Alignment.bottomRight,
-                              // ),
-                              width: 2.0, // Border thickness
-                            ),
-                          ),
-                          errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(800.0),
-                            borderSide: const BorderSide(
-                              color: Colors.red, // Border color for error state
-                              width: 2.0, // Border thickness
-                            ),
-                          ),
-                          focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(80.0),
-                            borderSide: const BorderSide(
-                              color: Colors
-                                  .red, // Border color for error state when focused
-                              width: 2.0, // Border thickness
-                            ),
-                          ),
-                        ),
-                        onChanged: (value) {
-                          personName = value.trim();
-                        },
-                        validator: Validator.personNameValidator,
+        body: Stack(
+          children: [
+            const BackgroudContainer(),
+            SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  const Padding(
+                    // padding: EdgeInsets.only(top: height*0.03,bottom: height*0.04),
+                    padding: EdgeInsets.only(top: 50, bottom: 40),
+                    // padding: EdgeInsets.only(top: (height*0.07)),
+                    child: Center(
+                      child: Text(
+                        'Register',
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 30.0,
+                            fontWeight: FontWeight.bold),
                       ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  ),
+
+                  const SizedBox(
+                    height: 10.0,
+                  ),
+                  Form(
+                    key: _formKey,
+                    child: Column(
                       children: [
-                        CustomButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              trainFromGallery(
-                                  formKey: _formKey,
-                                  detectController: detectController,
-                                  trainController: trainController,
-                                  personName: personName.trim(),
-                                  fileName: fileName);
-                            }
-                          },
-                          buttonName: 'Gallery',
-                          icon: const Icon(
-                            Icons.photo_library,
-                            color: Colors.white,
+                        Padding(
+                          // padding: EdgeInsets.only( left: width*0.04, right: width*0.04, bottom: 50),
+                          padding: const EdgeInsets.only(
+                              left: 10, right: 10, bottom: 50),
+                          child: TextFormField(
+                            controller: textFieldController,
+                            decoration: InputDecoration(
+                              hintText: 'Enter Name',
+
+                              filled:
+                                  true, // Fill the background of the text field
+                              fillColor:
+                                  Colors.white, // Color inside the text field
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(80.0),
+                                borderSide:
+                                    BorderSide.none, // Remove the border
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(80.0),
+                                borderSide: const BorderSide(
+                                  color: Colors.black, // Default border color
+                                  width: 2.0, // Default border thickness
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(80.0),
+                                borderSide: const BorderSide(
+                                  color: Color(0xFF0cdec1),
+                                  // Gradient border when focused
+                                  // gradient: LinearGradient(
+                                  //   colors: [Color(0xFF0cdec1), Color(0xFF0ad8e6)],
+                                  //   begin: Alignment.topLeft,
+                                  //   end: Alignment.bottomRight,
+                                  // ),
+                                  width: 2.0, // Border thickness
+                                ),
+                              ),
+                              errorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(800.0),
+                                borderSide: const BorderSide(
+                                  color: Colors
+                                      .red, // Border color for error state
+                                  width: 2.0, // Border thickness
+                                ),
+                              ),
+                              focusedErrorBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(80.0),
+                                borderSide: const BorderSide(
+                                  color: Colors
+                                      .red, // Border color for error state when focused
+                                  width: 2.0, // Border thickness
+                                ),
+                              ),
+                            ),
+                            onChanged: (value) {
+                              personName = value.trim();
+                            },
+                            validator: Validator.personNameValidator,
                           ),
                         ),
-                        CustomButton(
-                          buttonName: 'Match',
-                          icon: const Icon(
-                            Icons.compare,
-                            color: Colors.white,
-                          ),
-                          onPressed: () async {
-                            recognizeImage(
-                                detectController: detectController,
-                                recognizeController: recognizeController,
-                                fileName: fileName);
-                          },
+                        const SizedBox(
+                          height: 50,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            CustomButton(
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  trainFromGallery(
+                                      formKey: _formKey,
+                                      detectController: detectController,
+                                      trainController: trainController,
+                                      personName: personName.trim(),
+                                      fileName: fileName);
+                                }
+                              },
+                              buttonName: 'Gallery',
+                              icon: const Icon(
+                                Icons.photo_library,
+                                color: Colors.white,
+                              ),
+                            ),
+                            CustomButton(
+                              buttonName: 'Capture',
+                              icon: const Icon(Icons.camera_alt,
+                                  color: Colors.white),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  captureAndTrainImage(
+                                      formKey: _formKey,
+                                      context: context,
+                                      detectController: detectController,
+                                      trainController: trainController,
+                                      personName: personName,
+                                      fileName: fileName);
+                                }
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            CustomButton(
+                              buttonName: 'Delete',
+                              icon: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                if (_formKey.currentState!.validate()) {
+                                  deleteNameFromSharedPreferences(
+                                      textFieldController,
+                                      personName,
+                                      fileName);
+                                }
+                              },
+                            ),
+                            CustomButton(
+                              buttonName: 'Print',
+                              icon: const Icon(
+                                Icons.print,
+                                color: Colors.white,
+                              ),
+                              onPressed: () {
+                                getKeysFromTestMap(fileName);
+                              },
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 20,
+                  ),
+
+                  if (detectState is LoadingState)
+                    const CircularProgressIndicator(),
+
+                  if (detectState is SuccessState)
+                    SizedBox(
+                      ///container
+                      height: 200,
+                      width: 100,
+                      child: ListView.builder(
+                        itemCount: detectState.data?.length ?? 0,
+                        itemBuilder: (context, index) {
+                          final img.Image image = detectState.data[index];
+                          final Uint8List uint8List =
+                              convertImageToUint8List(image);
+
+                          return SizedBox(
+                            ///container
+                            width: 112,
+                            height: 112,
+                            // margin: const EdgeInsets.all(8.0),
+                            child: Image.memory(
+                              uint8List,
+                              width: 112.0,
+                              height: 112.0,
+                              // fit: BoxFit.cover,
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        CustomButton(
-                          buttonName: 'Burst',
-                          icon: const Icon(
-                            Icons.burst_mode_outlined,
-                            color: Colors.white,
-                          ),
-                          onPressed: () async {
-                            if (_formKey.currentState!.validate()) {
-                              burstShotTraining(
-                                  context: context,
-                                  detectController: detectController,
-                                  trainController: trainController,
-                                  personName: personName,
-                                  fileName: fileName);
-                            }
-                          },
+
+                  const SizedBox(
+                    height: 10.0,
+                  ),
+
+                  if (recognizeState is SuccessState &&
+                      detectState is SuccessState)
+                    Center(
+                      child: Text(
+                        recognizeState.name,
+                        style: const TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        /////////////////////////////////////////////////////////
-                        // CustomButton(
-                        //   buttonName: 'Live',
-                        //   icon: const Icon(
-                        //     Icons.videocam,
-                        //     color: Colors.white,
-                        //   ),
-                        //   onPressed: () {
-                        //     goToLiveFeedScreen(
-                        //         context, detectController, fileName);
-                        //   },
-                        // ),
-                        CustomButton(
-                          buttonName: 'Capture',
-                          icon:
-                              const Icon(Icons.camera_alt, color: Colors.white),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              captureAndTrainImage(
-                                  formKey: _formKey,
-                                  context: context,
-                                  detectController: detectController,
-                                  trainController: trainController,
-                                  personName: personName,
-                                  fileName: fileName);
-                            }
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        CustomButton(
-                          buttonName: 'Delete',
-                          icon: const Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              deleteNameFromSharedPreferences(
-                                  textFieldController, personName, fileName);
-                            }
-                          },
+
+                  if (recognizeState is ErrorState &&
+                      detectState is SuccessState)
+                    Center(
+                      child: Text(
+                        recognizeState.errorMessage,
+                        style: const TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
                         ),
-                        CustomButton(
-                          buttonName: 'Print',
-                          icon: const Icon(
-                            Icons.print,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            getKeysFromTestMap(fileName);
-                          },
-                        ),
-                      ],
+                      ),
                     ),
-                  ],
-                ),
+
+                  if (detectState is ErrorState && recognizeState is ErrorState)
+                    Center(
+                      child: Text(
+                        recognizeState.errorMessage,
+                        style: const TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  if (detectState is ErrorState)
+                    Center(
+                      child: Text(
+                        detectState.errorMessage,
+                        style: const TextStyle(
+                          fontSize: 25,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+
+                  // if(trainState is ErrorState && detectState is ErrorState)
+                  //   Center(child: Text(trainState.errorMessage,
+                  //     style: const  TextStyle(
+                  //       fontSize: 25,
+                  //       fontWeight: FontWeight.bold,
+                  //       color: Colors.white,
+                  //     ),
+                  //   ),
+                  //   ),
+                ],
               ),
-
-              if (detectState is LoadingState)
-                const CircularProgressIndicator(),
-
-              if (detectState is SuccessState)
-                Container(
-                  height: 200,
-                  width: 100,
-                  child: ListView.builder(
-                    itemCount: detectState.data?.length ?? 0,
-                    itemBuilder: (context, index) {
-                      final img.Image image = detectState.data[index];
-                      final Uint8List uint8List =
-                          convertImageToUint8List(image);
-
-                      return Container(
-                        width: 112,
-                        height: 112,
-                        // margin: const EdgeInsets.all(8.0),
-                        child: Image.memory(
-                          uint8List,
-                          width: 112.0,
-                          height: 112.0,
-                          // fit: BoxFit.cover,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-
-              const SizedBox(
-                height: 10.0,
-              ),
-
-              // if(trainState is SuccessState)
-              //   Center(child: Text(trainState.name,
-              //     style: const  TextStyle(
-              //       fontSize: 25,
-              //       fontWeight: FontWeight.bold,
-              //       color: Colors.white,
-              //     ),
-              //   ),
-              //   ),
-
-              if (recognizeState is SuccessState && detectState is SuccessState)
-                Center(
-                  child: Text(
-                    recognizeState.name,
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-              if (recognizeState is ErrorState && detectState is SuccessState)
-                Center(
-                  child: Text(
-                    recognizeState.errorMessage,
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-              if (detectState is ErrorState && recognizeState is ErrorState)
-                Center(
-                  child: Text(
-                    recognizeState.errorMessage,
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              if (detectState is ErrorState)
-                Center(
-                  child: Text(
-                    detectState.errorMessage,
-                    style: const TextStyle(
-                      fontSize: 25,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-
-              // if(trainState is ErrorState && detectState is ErrorState)
-              //   Center(child: Text(trainState.errorMessage,
-              //     style: const  TextStyle(
-              //       fontSize: 25,
-              //       fontWeight: FontWeight.bold,
-              //       color: Colors.white,
-              //     ),
-              //   ),
-              //   ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
